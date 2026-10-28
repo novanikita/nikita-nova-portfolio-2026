@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProjectFilter from './ProjectFilter.astro';
+import ProjectGrid from './ProjectGrid.astro';
+import type { Lang } from '../i18n/ui';
+import { useTranslations } from '../i18n/utils';
+import { getFeaturedProjects } from '../lib/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const gridId = 'projects';
+const projects = await getFeaturedProjects(lang);
+---
+
+<BaseLayout>
+  <div class="ids__wrapper L">
+    <section class="hero">
+      <div class="ids__space XL"></div>
+      <div class="ids__text-width">
+        <h1>{t('hero.title')}</h1>
+        <p class="loud">{t('hero.text')}</p>
+      </div>
+      <div class="ids__space M"></div>
+      <ProjectFilter lang={lang} controls={gridId} />
+      <div class="ids__space L"></div>
+    </section>
+
+    <section aria-label={t('projects.heading')}>
+      <ProjectGrid lang={lang} id={gridId} projects={projects} />
+    </section>
+    <div class="ids__space XL"></div>
+  </div>
+</BaseLayout>

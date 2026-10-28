@@ -1,0 +1,304 @@
+/* Стили сайта поверх IDS. Только композиция блоков, цвета и размеры — из токенов IDS. */
+
+[hidden] {
+  display: none !important;
+}
+
+/* Хедер */
+
+.site-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--ids__gap-s) var(--ids__gap-l);
+}
+
+.ids .site-header__name {
+  color: inherit;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--ids__hover);
+  }
+}
+
+.ids .site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--ids__gap-s) var(--ids__gap-m);
+  margin: 0;
+  padding: 0;
+
+  & li {
+    margin: 0;
+    padding: 0;
+
+    &::before {
+      content: none;
+    }
+  }
+
+  & a {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--ids__hover);
+    }
+  }
+}
+
+.site-nav__lang {
+  margin-left: var(--ids__gap-m);
+}
+
+/* Заглавный экран */
+
+.hero {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+
+  /* Длинные слова вроде «Мультидисциплинарный» на узких экранах переносятся, а не вылезают */
+  & h1 {
+    hyphens: auto;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* Фильтр проектов */
+
+.filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ids__gap-s);
+}
+
+.filter__item {
+  appearance: none;
+  font: inherit;
+  color: inherit;
+  background: none;
+  cursor: pointer;
+  padding: 0.3em 0.8em 0.35em;
+  border: var(--ids__border-width-s) solid var(--ids__border);
+  border-radius: var(--ids__radius-pill);
+  transition:
+    color var(--ids__duration-base) var(--ids__easing-base),
+    border-color var(--ids__duration-base) var(--ids__easing-base);
+
+  &:hover {
+    color: var(--ids__hover);
+    border-color: var(--ids__hover);
+    transition-duration: var(--ids__duration-instant);
+  }
+
+  &[aria-pressed='true'] {
+    color: var(--ids__background);
+    background-color: var(--ids__text);
+    border-color: var(--ids__text);
+    cursor: default;
+  }
+}
+
+/* Сетка проектов */
+
+.ids .project-card {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+
+  &:hover .project-card__title {
+    color: var(--ids__hover);
+  }
+}
+
+.project-card__cover {
+  aspect-ratio: 4 / 3;
+  display: grid;
+  place-items: center;
+  background-color: var(--ids__surface);
+  color: var(--ids__text-caption);
+  margin-bottom: calc(var(--ids__density) * 0.4em);
+}
+
+.ids .project-card__title {
+  margin-bottom: 0;
+}
+
+.ids .project-card__meta {
+  margin-bottom: 0;
+  font-size: 0.8em;
+  color: var(--ids__text-caption);
+}
+
+/* Футер */
+
+.site-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--ids__gap-s) var(--ids__gap-l);
+  color: var(--ids__text-caption);
+  font-size: 0.8em;
+}
+
+.ids .site-footer p {
+  margin: 0;
+}
+
+.ids .site-socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ids__gap-s) var(--ids__gap-m);
+  margin: 0;
+  padding: 0;
+
+  & li {
+    margin: 0;
+    padding: 0;
+
+    &::before {
+      content: none;
+    }
+  }
+
+  & a {
+    color: inherit;
+  }
+}
+
+/* Тёмная тема: переключатель IDS стоит в меню, а не в фиксированном углу */
+
+.ids .site-nav .ids__theme-toggle {
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
+/* Страница кейса */
+
+.ids .project-back,
+.ids .article-back {
+  color: var(--ids__text-caption);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--ids__hover);
+  }
+}
+
+.project-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ids__gap-s) var(--ids__gap-l);
+  margin: 0;
+  font-size: 0.8em;
+
+  & div {
+    display: flex;
+    gap: 0.4em;
+  }
+
+  & dt {
+    color: var(--ids__text-caption);
+  }
+
+  & dd {
+    margin: 0;
+  }
+}
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--ids__gap-m);
+  margin-bottom: var(--ids__spacer-l);
+
+  @media (width < 768px) {
+    grid-template-columns: 1fr;
+  }
+
+  & .XL {
+    grid-column: 1 / -1;
+  }
+
+  & figure {
+    margin: 0;
+  }
+
+  & img,
+  & video {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+}
+
+.ids .project-next {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+
+  &:hover h2 {
+    color: var(--ids__hover);
+  }
+
+  & p {
+    color: var(--ids__text-caption);
+    font-size: 0.8em;
+    margin-bottom: 0.2em;
+  }
+}
+
+/* Карточка проекта с настоящей обложкой */
+
+.project-card__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Список статей */
+
+.ids .articles-list {
+  margin: 0;
+  padding: 0;
+
+  & li {
+    padding: 0;
+    margin: 0 0 var(--ids__spacer-s);
+
+    &::before {
+      content: none;
+    }
+  }
+
+  & a {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--ids__hover);
+    }
+  }
+
+  & time {
+    display: block;
+    color: var(--ids__text-caption);
+    font-size: 0.8em;
+  }
+}
+
+.ids .article-date {
+  color: var(--ids__text-caption);
+}
+
+.ids .article-body img {
+  margin: var(--ids__spacer-m) 0;
+}

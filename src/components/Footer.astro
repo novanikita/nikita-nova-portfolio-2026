@@ -1,0 +1,28 @@
+---
+import { getLangFromUrl, useTranslations } from '../i18n/utils';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+// TODO: список соцсетей — заглушка, уточнить у Никиты, что именно показывать
+const socials = [
+  { label: 'Telegram', href: 'https://t.me/nikita_nova' },
+  { label: 'Behance', href: '#' },
+  { label: 'Instagram', href: '#' },
+];
+---
+
+<footer class="site-footer">
+  <p>{t('footer.copyright')}</p>
+  <ul class="site-socials" aria-label={t('footer.socials')}>
+    {
+      socials.map((s) => (
+        <li>
+          <a href={s.href} target="_blank" rel="noopener">
+            {s.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</footer>

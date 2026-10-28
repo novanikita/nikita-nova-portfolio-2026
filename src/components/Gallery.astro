@@ -1,0 +1,41 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+
+type Figure = CollectionEntry<'projects'>['data']['galleries'][number][number];
+
+interface Props {
+  figures: Figure[];
+  /** Первая галерея на странице: её первая картинка грузится сразу, не лениво */
+  first?: boolean;
+}
+
+const { figures, first = false } = Astro.props;
+
+/** Адреса вида /video/x.mp4 из public/ с учётом базового пути сайта */
+const withBase = (path: string) =>
+  path.startsWith('/') ? `${import.meta.env.BASE_URL.replace(/\/$/, '')}${path}` : path;
+---
+
+<div class="gallery">
+  {
+    figures.map((f, i) =>
+      'image' in f ? (
+        <figure class={f.size}>
+          <Image
+            src={f.image}
+            alt={f.alt ?? ''}
+            widths={f.size === 'XL' ? [800, 1400, 2000] : [600, 1000, 1400]}
+            sizes={f.size === 'XL' ? '(width < 768px) 100vw, 85vw' : '(width < 768px) 100vw, 42vw'}
+            format="avif"
+            loading={first && i === 0 ? 'eager' : 'lazy'}
+          />
+        </figure>
+      ) : (
+        <figure class={f.size}>
+          <video src={withBase(f.video)} poster={f.poster?.src} autoplay muted loop playsinline preload="metadata" />
+        </figure>
+      ),
+    )
+  }
+</div>

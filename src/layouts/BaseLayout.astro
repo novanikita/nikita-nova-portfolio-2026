@@ -1,0 +1,81 @@
+---
+import '../styles/ids/tokens/palette.css';
+import '../styles/ids/tokens/colors.css';
+import '../styles/ids/tokens/scales.css';
+import '../styles/ids/settings.css';
+import '../styles/ids/reset.css';
+import '../styles/ids/page-composition/layout.css';
+import '../styles/ids/components/ids.css';
+import '../styles/ids/components/theme-toggle.css';
+import '../styles/site.css';
+
+import { getImage } from 'astro:assets';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { getLangFromUrl, useTranslations, switchLangPath } from '../i18n/utils';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Картинка для превью ссылки; без неё превью будет без картинки */
+  ogImage?: ImageMetadata;
+  ogType?: 'website' | 'article';
+}
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const {
+  title = t('site.title'),
+  description = t('site.description'),
+  ogImage,
+  ogType = 'website',
+} = Astro.props;
+
+// Предпросмотр на GitHub Pages не должен индексироваться вместо боевого домена
+const isPreview = import.meta.env.PUBLIC_PREVIEW === 'true';
+
+const og = ogImage ? await getImage({ src: ogImage, width: 1200, format: 'jpg' }) : undefined;
+const ogUrl = og ? new URL(og.src, Astro.site) : undefined;
+
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const alternateRu = new URL(switchLangPath(Astro.url, 'ru'), Astro.site);
+const alternateEn = new URL(switchLangPath(Astro.url, 'en'), Astro.site);
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      // Тема до первой отрисовки, чтобы страница не мигала светлым
+      (function () {
+        var theme = localStorage.getItem('ids-theme');
+        if (theme === 'dark' || (!theme && matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {isPreview && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="ru" href={alternateRu} />
+    <link rel="alternate" hreflang="en" href={alternateEn} />
+    <link rel="alternate" hreflang="x-default" href={alternateRu} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={lang === 'ru' ? 'ru_RU' : 'en_US'} />
+    {ogUrl && <meta property="og:image" content={ogUrl} />}
+    <meta name="twitter:card" content={ogUrl ? 'summary_large_image' : 'summary'} />
+  </head>
+  <body class="ids">
+    <Header />
+    <main>
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

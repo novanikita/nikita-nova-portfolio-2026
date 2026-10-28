@@ -1,0 +1,46 @@
+---
+import { categories } from '../data/categories';
+import type { Lang } from '../i18n/ui';
+import { useTranslations } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  /** id сетки, которой управляет фильтр */
+  controls: string;
+}
+
+const { lang, controls } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<div class="filter" role="group" aria-label={t('filter.label')} data-filter-group={controls}>
+  <button type="button" class="filter__item" data-filter="all" aria-pressed="true">
+    {t('filter.all')}
+  </button>
+  {
+    categories.map((c) => (
+      <button type="button" class="filter__item" data-filter={c.slug} aria-pressed="false">
+        {c.label[lang]}
+      </button>
+    ))
+  }
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-filter-group]').forEach((group) => {
+    const grid = document.getElementById(group.dataset.filterGroup ?? '');
+    if (!grid) return;
+    const buttons = group.querySelectorAll<HTMLButtonElement>('[data-filter]');
+    const cards = grid.querySelectorAll<HTMLElement>('[data-category]');
+
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const filter = button.dataset.filter;
+        buttons.forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+        cards.forEach((card) => {
+          card.hidden = filter !== 'all' && card.dataset.category !== filter;
+        });
+      });
+    });
+  });
+</script>

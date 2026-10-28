@@ -1,0 +1,65 @@
+---
+import { getLangFromUrl, useTranslations, localePath, switchLangPath } from '../i18n/utils';
+import { languages, type Lang } from '../i18n/ui';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+// TODO: адрес для «Написать» — заглушка, уточнить у Никиты
+const contactHref = 'https://t.me/nikita_nova';
+---
+
+<header class="site-header">
+  <a class="site-header__name" href={localePath(lang)}>
+    {t('site.name')} — {t('site.role')}
+  </a>
+  <nav aria-label={lang === 'ru' ? 'Основная навигация' : 'Main navigation'}>
+    <ul class="site-nav">
+      <li><a href={localePath(lang, 'projects')}>{t('nav.projects')}</a></li>
+      <li><a href={localePath(lang, 'articles')}>{t('nav.articles')}</a></li>
+      <li><a href={contactHref} target="_blank" rel="noopener">{t('nav.contact')}</a></li>
+      <li class="site-nav__lang">
+        {
+          (Object.keys(languages) as Lang[]).map((code, i) => (
+            <>
+              {i > 0 && ' / '}
+              {code === lang ? (
+                <span aria-current="true">{languages[code]}</span>
+              ) : (
+                <a href={switchLangPath(Astro.url, code)} hreflang={code} lang={code}>
+                  {languages[code]}
+                </a>
+              )}
+            </>
+          ))
+        }
+      </li>
+      <li>
+        <button class="ids__theme-toggle" role="switch" aria-checked="false" aria-label={t('theme.toggle')}>
+          <span class="ids__theme-toggle__track"><span class="ids__theme-toggle__thumb"></span></span>
+        </button>
+      </li>
+    </ul>
+  </nav>
+</header>
+
+<script>
+  const KEY = 'ids-theme';
+  const root = document.documentElement;
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.ids__theme-toggle');
+
+  function updateToggles() {
+    const isDark = root.classList.contains('dark');
+    buttons.forEach((btn) => btn.setAttribute('aria-checked', String(isDark)));
+  }
+
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const isDark = root.classList.toggle('dark');
+      localStorage.setItem(KEY, isDark ? 'dark' : 'light');
+      updateToggles();
+    });
+  });
+
+  updateToggles();
+</script>

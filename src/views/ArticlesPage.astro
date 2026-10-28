@@ -1,0 +1,38 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import type { Lang } from '../i18n/ui';
+import { useTranslations } from '../i18n/utils';
+import { getArticles, formatDate } from '../lib/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const articles = await getArticles(lang);
+---
+
+<BaseLayout title={`${t('articles.heading')} — ${t('site.name')}`}>
+  <div class="ids__wrapper L">
+    <div class="ids__space L"></div>
+    <h1 class="S">{t('articles.heading')}</h1>
+    <div class="ids__space M"></div>
+    <div class="ids__text-width">
+      {articles.length === 0 && <p>{t('articles.empty')}</p>}
+      <ul class="articles-list">
+        {
+          articles.map((a) => (
+            <li>
+              <a href={a.url}>
+                <h3 class="articles-list__title">{a.listTitle}</h3>
+                <time datetime={a.entry.data.date.toISOString().slice(0, 10)}>{formatDate(a.entry.data.date, lang)}</time>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+    <div class="ids__space XL"></div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,34 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import type { Lang } from '../i18n/ui';
+import { useTranslations, localePath } from '../i18n/utils';
+import { localizeArticleEntry, renderLocalized, formatDate } from '../lib/content';
+
+interface Props {
+  lang: Lang;
+  entry: CollectionEntry<'articles'>;
+}
+
+const { lang, entry } = Astro.props;
+const t = useTranslations(lang);
+const article = await localizeArticleEntry(entry, lang);
+const { Content } = await renderLocalized(article);
+---
+
+<BaseLayout title={`${article.title} — ${t('site.name')}`} description={article.description} ogType="article">
+  <article class="ids__wrapper">
+    <div class="ids__space L"></div>
+    <p><a class="article-back" href={localePath(lang, 'articles')}>← {t('nav.allArticles')}</a></p>
+    <div class="ids__space S"></div>
+    <h1 class="S">{article.title}</h1>
+    <p class="article-date">
+      <time datetime={entry.data.date.toISOString().slice(0, 10)}>{formatDate(entry.data.date, lang)}</time>
+    </p>
+    <div class="ids__space M"></div>
+    <div class="ids__text-width article-body">
+      <Content />
+    </div>
+    <div class="ids__space XL"></div>
+  </article>
+</BaseLayout>

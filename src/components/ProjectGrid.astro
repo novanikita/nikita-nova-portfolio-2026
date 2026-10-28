@@ -1,0 +1,38 @@
+---
+import ProjectCard from './ProjectCard.astro';
+import { placeholderProjects } from '../data/projects.placeholder';
+import { categoryLabel } from '../data/categories';
+import type { Lang } from '../i18n/ui';
+import type { LocalizedProject } from '../lib/content';
+import { useTranslations, localePath } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  id: string;
+  projects: LocalizedProject[];
+}
+
+const { lang, id, projects } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<div class="ids__sequence L gap-M" id={id}>
+  {projects.map((p) => <ProjectCard project={p} lang={lang} />)}
+  {
+    /* Пока настоящих проектов нет — заглушки, чтобы было видно сетку и фильтр */
+    projects.length === 0 &&
+      placeholderProjects.map((p) => (
+        <a class="ids__sequence-item project-card" href={localePath(lang, 'projects')} data-category={p.category}>
+          <div class="project-card__cover ids__rounded" aria-hidden="true">
+            {p.number}
+          </div>
+          <h3 class="project-card__title">
+            {t('projects.placeholder')} {p.number}
+          </h3>
+          <p class="project-card__meta">
+            {categoryLabel(p.category, lang)}, {p.year}
+          </p>
+        </a>
+      ))
+  }
+</div>

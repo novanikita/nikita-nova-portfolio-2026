@@ -1,0 +1,31 @@
+---
+import { Image } from 'astro:assets';
+import type { LocalizedProject } from '../lib/content';
+import { categoryLabel } from '../data/categories';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  project: LocalizedProject;
+  lang: Lang;
+}
+
+const { project, lang } = Astro.props;
+const { entry } = project;
+---
+
+<a class="ids__sequence-item project-card" href={project.url} data-category={entry.data.category}>
+  <div class="project-card__cover ids__rounded">
+    <Image
+      src={entry.data.cover}
+      alt={project.coverAlt}
+      widths={[400, 800, 1200]}
+      sizes="(width < 768px) 50vw, 30vw"
+      format="avif"
+      loading="lazy"
+    />
+  </div>
+  <h3 class="project-card__title">{project.title}</h3>
+  <p class="project-card__meta">
+    {categoryLabel(entry.data.category, lang)}, {entry.data.year}
+  </p>
+</a>
