@@ -3,9 +3,7 @@ title: "Концепция упаковки для Commo"
 category: packaging
 year: 2025
 client: "Commo"
-scope: "концепция упаковки"
-order: 10
-featured: true
+order: 30
 cover: ./cover.avif
 galleries:
   - - image: ./commo-1.avif

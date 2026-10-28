@@ -1,7 +1,6 @@
 ---
 title: "Packaging concept for Commo"
 client: "Commo"
-scope: "packaging concept"
 ---
 
 Made as a test assignment
