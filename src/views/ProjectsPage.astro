@@ -1,10 +1,9 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import ProjectFilter from '../components/ProjectFilter.astro';
 import ProjectGrid from '../components/ProjectGrid.astro';
 import type { Lang } from '../i18n/ui';
 import { useTranslations } from '../i18n/utils';
-import { getProjects } from '../lib/content';
+import { getProjects, getArticles } from '../lib/content';
 
 interface Props {
   lang: Lang;
@@ -13,17 +12,17 @@ interface Props {
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 const gridId = 'projects';
-const projects = await getProjects(lang);
+const [projects, articles] = await Promise.all([getProjects(lang), getArticles(lang)]);
 ---
 
 <BaseLayout title={`${t('projects.heading')} — ${t('site.name')}`}>
   <div class="ids__wrapper L">
     <div class="ids__space L"></div>
     <h1 class="S">{t('projects.heading')}</h1>
-    <div class="ids__space S"></div>
-    <ProjectFilter lang={lang} controls={gridId} />
     <div class="ids__space L"></div>
-    <ProjectGrid lang={lang} id={gridId} projects={projects} />
-    <div class="ids__space XL"></div>
   </div>
+  <div class="project-grid-wrap">
+    <ProjectGrid lang={lang} id={gridId} projects={projects} articles={articles} />
+  </div>
+  <div class="ids__space XL"></div>
 </BaseLayout>

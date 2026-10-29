@@ -4,32 +4,155 @@
   display: none !important;
 }
 
-/* Хедер */
-
-.site-header {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: var(--ids__gap-s) var(--ids__gap-l);
+/* Анимация на сайте одна — фейд. Длительность общая для всего */
+:root {
+  --site-fade: 0.3s ease;
 }
 
-.ids .site-header__name {
-  color: inherit;
-  text-decoration: none;
-
-  &:hover {
-    color: var(--ids__hover);
+/* Переходы между страницами — растворение. Браузеры без поддержки просто открывают страницу */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
   }
 }
 
-.ids .site-nav {
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.3s;
+}
+
+/* Ссылки: цвет и прозрачность меняются плавно и при наведении, и при уходе курсора */
+.ids a,
+.ids a:hover {
+  transition:
+    color var(--site-fade),
+    opacity var(--site-fade),
+    background-color var(--site-fade),
+    text-decoration-color var(--site-fade);
+}
+
+/* Скрыто с экрана, но доступно скринридерам и поисковикам */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Хедер: по центру закреплённая плашка «Никита Нова делает [всё ⌄]», выпадающий список
+   фильтрует проекты или ведёт в статьи. Справа «Написать» и язык — без плашки. */
+
+.site-header,
+.site-tools {
+  --pill-padding-block: 0.5em 0.55em;
+  --pill-tint: color-mix(in srgb, var(--ids__text) 7%, transparent);
+  --pill-chip-padding: 0.45em;
+}
+
+/* Сама шапка прозрачная и пропускает клики к контенту под ней, клики ловит только плашка */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* Стекло: при прокрутке картинки проходят под плашкой размытыми */
+.site-pill,
+.ids .site-pill__list {
+  background-color: color-mix(in srgb, var(--ids__surface) 80%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  backdrop-filter: blur(20px) saturate(1.6);
+  box-shadow:
+    inset 0 0 0 var(--ids__border-width-s) var(--pill-tint),
+    0 0.5em 1.5em -0.75em rgb(0 0 0 / 0.25);
+}
+
+.ids .site-pill {
+  pointer-events: auto;
+  position: relative;
+  padding: var(--pill-padding-block);
+  padding-inline: 1em 0.55em;
+  border-radius: 0.65em;
+  white-space: nowrap;
+
+  & a {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--ids__hover);
+    }
+  }
+}
+
+/* Зазор «Нова — делает» такой же, как «делает — всё», где к пробелу добавляется отступ чипа */
+.site-pill__name {
+  margin-right: var(--pill-chip-padding);
+}
+
+/* Слово, которое раскрывает список, — чип внутри плашки */
+.site-pill__toggle {
+  appearance: none;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  margin: -0.15em 0;
+  padding: 0.15em var(--pill-chip-padding);
+  border-radius: 0.4em;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3em;
+  transition: background-color var(--site-fade);
+
+  &:hover,
+  &[aria-expanded='true'] {
+    background-color: var(--pill-tint);
+  }
+}
+
+.site-pill__chevron {
+  width: 0.6em;
+  height: 0.36em;
+  opacity: 0.6;
+  transition: transform var(--site-fade);
+
+  [aria-expanded='true'] > & {
+    transform: rotate(180deg);
+  }
+}
+
+.ids .site-pill__list {
+  position: absolute;
+  z-index: 2;
+  /* Пункты в строку, строка по центру под плашкой. Если не влезает в экран — переносится */
+  top: calc(100% + 0.5em);
+  left: 50%;
+  translate: -50% 0;
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--ids__gap-s) var(--ids__gap-m);
+  justify-content: center;
+  gap: 0.15em;
+  width: max-content;
+  max-width: calc(100vw - 2rem);
   margin: 0;
-  padding: 0;
+  padding: 0.35em;
+  border-radius: 0.65em;
+  animation: site-fade-in var(--site-fade);
+
+  &.is-closing {
+    animation: site-fade-out var(--site-fade) forwards;
+  }
+  /* Размытие внутри размытой плашки не работает, поэтому подложка сплошная */
+  background-color: var(--ids__surface);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 
   & li {
     margin: 0;
@@ -38,6 +161,63 @@
     &::before {
       content: none;
     }
+  }
+
+  & a {
+    display: block;
+    padding: 0.3em 0.65em;
+    border-radius: 0.4em;
+
+    &:hover {
+      color: inherit;
+      background-color: var(--pill-tint);
+    }
+  }
+
+  & [aria-current] {
+    background-color: var(--pill-tint);
+  }
+}
+
+@keyframes site-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes site-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ids .site-pill__list,
+  .ids .site-pill__list.is-closing {
+    animation: none;
+  }
+}
+
+/* Отступы как у шапки, высота строки как у плашки — текст стоит на одной линии с ней */
+.ids .site-tools {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 11;
+  display: flex;
+  align-items: baseline;
+  gap: var(--ids__gap-m);
+  padding: calc(var(--ids__density) * 1rem);
+  white-space: nowrap;
+
+  & > * {
+    padding-block: var(--pill-padding-block);
+  }
+
+  @media (width < 900px) {
+    position: static;
+    justify-content: flex-end;
+    padding-bottom: 0;
   }
 
   & a {
@@ -50,90 +230,86 @@
   }
 }
 
-.site-nav__lang {
-  margin-left: var(--ids__gap-m);
-}
+/* Язык: РУ EN, текущий ярко, другой бледно */
+.ids .site-tools__lang {
+  display: inline-flex;
+  gap: 0.4em;
+  text-transform: uppercase;
 
-/* Заглавный экран */
+  & a {
+    opacity: 0.35;
 
-.hero {
-  min-height: 60vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-
-  /* Длинные слова вроде «Мультидисциплинарный» на узких экранах переносятся, а не вылезают */
-  & h1 {
-    hyphens: auto;
-    overflow-wrap: anywhere;
-  }
-}
-
-/* Фильтр проектов */
-
-.filter {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--ids__gap-s);
-}
-
-.filter__item {
-  appearance: none;
-  font: inherit;
-  color: inherit;
-  background: none;
-  cursor: pointer;
-  padding: 0.3em 0.8em 0.35em;
-  border: var(--ids__border-width-s) solid var(--ids__border);
-  border-radius: var(--ids__radius-pill);
-  transition:
-    color var(--ids__duration-base) var(--ids__easing-base),
-    border-color var(--ids__duration-base) var(--ids__easing-base);
-
-  &:hover {
-    color: var(--ids__hover);
-    border-color: var(--ids__hover);
-    transition-duration: var(--ids__duration-instant);
-  }
-
-  &[aria-pressed='true'] {
-    color: var(--ids__background);
-    background-color: var(--ids__text);
-    border-color: var(--ids__text);
-    cursor: default;
+    &:hover {
+      color: inherit;
+      opacity: 1;
+    }
   }
 }
 
 /* Сетка проектов */
 
+/* Сетка во всю ширину экрана, по краям такой же отступ, как между карточками */
+.project-grid-wrap {
+  padding-inline: var(--ids__gap-s);
+}
+
+/* На телефоне одна колонка: подпись внутри карточки не помещается в половину экрана */
+.ids .project-grid.ids__sequence .ids__sequence-item {
+  @media (width < 768px) {
+    --columns: 1;
+  }
+}
+
+/* Подпись внутри карточки, на градиенте в цвет низа обложки (--tone считается при сборке,
+   см. src/lib/cover-tone.ts). На тёмном низе текст светлый (.is-dark) */
 .ids .project-card {
+  --tone: var(--ids__surface);
+  position: relative;
   display: block;
-  color: inherit;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  background-color: var(--ids__surface);
+  color: var(--ids__text);
   text-decoration: none;
 
-  &:hover .project-card__title {
-    color: var(--ids__hover);
+  &:hover {
+    color: var(--ids__text);
+  }
+
+  &.is-dark,
+  &.is-dark:hover {
+    color: color-mix(in srgb, var(--tone) 12%, white);
   }
 }
 
 .project-card__cover {
+  position: relative;
   aspect-ratio: 4 / 3;
   display: grid;
   place-items: center;
-  background-color: var(--ids__surface);
   color: var(--ids__text-caption);
-  margin-bottom: calc(var(--ids__density) * 0.4em);
+}
+
+.project-card__caption {
+  position: absolute;
+  inset: auto 0 0;
+  padding: 4em 0.75em 0.7em;
+  background: linear-gradient(
+    to top,
+    var(--tone) 0%,
+    color-mix(in srgb, var(--tone) 85%, transparent) 35%,
+    transparent 100%
+  );
 }
 
 .ids .project-card__title {
   margin-bottom: 0;
+
+  @media (width < 768px) {
+    font-size: 1.3em;
+  }
 }
 
-.ids .project-card__meta {
-  margin-bottom: 0;
-  font-size: 0.8em;
-  color: var(--ids__text-caption);
-}
 
 /* Футер */
 
@@ -170,15 +346,6 @@
   & a {
     color: inherit;
   }
-}
-
-/* Тёмная тема: переключатель IDS стоит в меню, а не в фиксированном углу */
-
-.ids .site-nav .ids__theme-toggle {
-  position: static;
-  display: inline-flex;
-  align-items: center;
-  vertical-align: middle;
 }
 
 /* Страница кейса */
@@ -258,7 +425,10 @@
 
 /* Карточка проекта с настоящей обложкой */
 
+/* Картинка не влияет на размер карточки: вертикальная обложка тоже обрезается до 4:3 */
 .project-card__cover img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;

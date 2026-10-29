@@ -6,7 +6,6 @@ import '../styles/ids/settings.css';
 import '../styles/ids/reset.css';
 import '../styles/ids/page-composition/layout.css';
 import '../styles/ids/components/ids.css';
-import '../styles/ids/components/theme-toggle.css';
 import '../styles/site.css';
 
 import { getImage } from 'astro:assets';
@@ -20,6 +19,8 @@ interface Props {
   /** Картинка для превью ссылки; без неё превью будет без картинки */
   ogImage?: ImageMetadata;
   ogType?: 'website' | 'article';
+  /** Что выбрано в плашке шапки, см. Header */
+  current?: string;
 }
 
 const lang = getLangFromUrl(Astro.url);
@@ -29,6 +30,7 @@ const {
   description = t('site.description'),
   ogImage,
   ogType = 'website',
+  current,
 } = Astro.props;
 
 // Предпросмотр на GitHub Pages не должен индексироваться вместо боевого домена
@@ -47,15 +49,6 @@ const alternateEn = new URL(switchLangPath(Astro.url, 'en'), Astro.site);
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script is:inline>
-      // Тема до первой отрисовки, чтобы страница не мигала светлым
-      (function () {
-        var theme = localStorage.getItem('ids-theme');
-        if (theme === 'dark' || (!theme && matchMedia('(prefers-color-scheme: dark)').matches)) {
-          document.documentElement.classList.add('dark');
-        }
-      })();
-    </script>
     <title>{title}</title>
     <meta name="description" content={description} />
     {isPreview && <meta name="robots" content="noindex, nofollow" />}
@@ -72,7 +65,7 @@ const alternateEn = new URL(switchLangPath(Astro.url, 'en'), Astro.site);
     <meta name="twitter:card" content={ogUrl ? 'summary_large_image' : 'summary'} />
   </head>
   <body class="ids">
-    <Header />
+    <Header current={current} />
     <main>
       <slot />
     </main>

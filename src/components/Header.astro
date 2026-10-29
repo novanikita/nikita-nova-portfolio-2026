@@ -1,65 +1,183 @@
 ---
 import { getLangFromUrl, useTranslations, localePath, switchLangPath } from '../i18n/utils';
 import { languages, type Lang } from '../i18n/ui';
+import { categories } from '../data/categories';
+import { getProjects, getArticles } from '../lib/content';
+
+interface Props {
+  /** Что выбрано в плашке: 'all', slug категории или 'articles'. По умолчанию — по адресу страницы. */
+  current?: string;
+}
 
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
 
 // TODO: адрес для «Написать» — заглушка, уточнить у Никиты
 const contactHref = 'https://t.me/nikita_nova';
+
+const home = localePath(lang);
+const isArticles = Astro.url.pathname.includes('/articles');
+const { current = isArticles ? 'articles' : 'all' } = Astro.props;
+
+// В списке только непустые разделы, чтобы не выбрать пустую сетку.
+// Все пункты фильтруют сетку на главной; с других страниц ведут на главную с фильтром
+const [projects, articles] = await Promise.all([getProjects(lang), getArticles(lang)]);
+const used = new Set(projects.map((p) => p.entry.data.category));
+const items = [
+  { key: 'all', label: t('menu.all'), href: home },
+  ...categories
+    .filter((c) => used.has(c.slug))
+    .map((c) => ({ key: c.slug, label: c.phrase[lang], href: `${home}?c=${c.slug}` })),
+  ...(articles.length ? [{ key: 'articles', label: t('menu.articles'), href: `${home}?c=articles` }] : []),
+];
+const currentLabel = items.find((i) => i.key === current)?.label ?? t('menu.all');
 ---
 
+<!-- «Написать» и язык справа вверху, без плашки и не закреплены -->
+<div class="site-tools">
+  <a href={contactHref} target="_blank" rel="noopener">{t('nav.contact')}</a>
+  <span class="site-tools__lang">
+    {
+      (Object.keys(languages) as Lang[]).map((code, i) => (
+        <>
+          {code === lang ? (
+            <span aria-current="true">{languages[code]}</span>
+          ) : (
+            <a href={switchLangPath(Astro.url, code)} hreflang={code} lang={code}>
+              {languages[code]}
+            </a>
+          )}
+        </>
+      ))
+    }
+  </span>
+</div>
+
 <header class="site-header">
-  <a class="site-header__name" href={localePath(lang)}>
-    {t('site.name')} — {t('site.role')}
-  </a>
-  <nav aria-label={lang === 'ru' ? 'Основная навигация' : 'Main navigation'}>
-    <ul class="site-nav">
-      <li><a href={localePath(lang, 'projects')}>{t('nav.projects')}</a></li>
-      <li><a href={localePath(lang, 'articles')}>{t('nav.articles')}</a></li>
-      <li><a href={contactHref} target="_blank" rel="noopener">{t('nav.contact')}</a></li>
-      <li class="site-nav__lang">
-        {
-          (Object.keys(languages) as Lang[]).map((code, i) => (
-            <>
-              {i > 0 && ' / '}
-              {code === lang ? (
-                <span aria-current="true">{languages[code]}</span>
-              ) : (
-                <a href={switchLangPath(Astro.url, code)} hreflang={code} lang={code}>
-                  {languages[code]}
-                </a>
-              )}
-            </>
-          ))
-        }
-      </li>
-      <li>
-        <button class="ids__theme-toggle" role="switch" aria-checked="false" aria-label={t('theme.toggle')}>
-          <span class="ids__theme-toggle__track"><span class="ids__theme-toggle__thumb"></span></span>
+  <nav class="site-pill" aria-label={t('nav.label')}>
+    <span class="site-pill__phrase">
+      <a class="site-pill__name" href={home}>{t('site.name')}</a>{' '}
+      {t('menu.does')}{' '}
+      <span class="site-pill__menu">
+        <button
+          type="button"
+          class="site-pill__toggle"
+          aria-expanded="false"
+          aria-controls="site-menu"
+          aria-label={`${currentLabel}. ${t('menu.choose')}`}
+          data-choose={t('menu.choose')}
+        >
+          <span data-current-label>{currentLabel}</span>
+          <svg class="site-pill__chevron" viewBox="0 0 10 6" aria-hidden="true">
+            <path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.2" />
+          </svg>
         </button>
-      </li>
-    </ul>
+        <ul class="site-pill__list" id="site-menu" hidden>
+          {
+            items.map((i) => (
+              <li>
+                <a href={i.href} data-menu-item={i.key} aria-current={i.key === current ? 'page' : undefined}>
+                  {i.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </span>
+    </span>
   </nav>
 </header>
 
 <script>
-  const KEY = 'ids-theme';
-  const root = document.documentElement;
-  const buttons = document.querySelectorAll<HTMLButtonElement>('.ids__theme-toggle');
+  // Плашка: «Никита Нова делает [всё ⌄]»
+  const toggle = document.querySelector<HTMLButtonElement>('.site-pill__toggle');
+  const list = document.querySelector<HTMLUListElement>('.site-pill__list');
+  const label = document.querySelector<HTMLElement>('[data-current-label]');
 
-  function updateToggles() {
-    const isDark = root.classList.contains('dark');
-    buttons.forEach((btn) => btn.setAttribute('aria-checked', String(isDark)));
-  }
+  if (toggle && list && label) {
+    const links = list.querySelectorAll<HTMLAnchorElement>('[data-menu-item]');
+    // Сетка проектов на этой странице: если есть, категории фильтруют её на месте
+    const grid = document.getElementById('projects');
+    const cards = grid ? grid.querySelectorAll<HTMLElement>('[data-category]') : [];
 
-  buttons.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const isDark = root.classList.toggle('dark');
-      localStorage.setItem(KEY, isDark ? 'dark' : 'light');
-      updateToggles();
+    // Закрытие — фейдом: список прячется, когда анимация закончится.
+    // instant — без анимации, когда страницу и так растворяет переход
+    const setOpen = (open: boolean, instant = false) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      list.classList.remove('is-closing');
+      if (open) {
+        list.hidden = false;
+        return;
+      }
+      if (list.hidden) return;
+      if (instant) {
+        list.hidden = true;
+        return;
+      }
+      list.classList.add('is-closing');
+      Promise.all(list.getAnimations().map((a) => a.finished)).then(() => {
+        if (list.classList.contains('is-closing')) {
+          list.hidden = true;
+          list.classList.remove('is-closing');
+        }
+      });
+    };
+
+    // Смена фильтра растворяет сетку, если браузер умеет View Transitions
+    const fade = (update: () => void) => {
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (document.startViewTransition && !reduce) document.startViewTransition(update);
+      else update();
+    };
+
+    const select = (key: string) => {
+      links.forEach((link) => {
+        const active = link.dataset.menuItem === key;
+        if (active) {
+          label.textContent = link.textContent?.trim() ?? '';
+          toggle.setAttribute('aria-label', `${label.textContent}. ${toggle.dataset.choose}`);
+          link.setAttribute('aria-current', 'page');
+        } else {
+          link.removeAttribute('aria-current');
+        }
+      });
+      cards.forEach((card) => {
+        card.hidden = key !== 'all' && card.dataset.category !== key;
+      });
+    };
+
+    toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+
+    document.addEventListener('click', (e) => {
+      if (!toggle.parentElement?.contains(e.target as Node)) setOpen(false);
     });
-  });
 
-  updateToggles();
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+
+    if (grid) {
+      links.forEach((link) => {
+        const key = link.dataset.menuItem ?? 'all';
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          fade(() => {
+            select(key);
+            setOpen(false, true);
+          });
+          const url = new URL(location.href);
+          if (key === 'all') url.searchParams.delete('c');
+          else url.searchParams.set('c', key);
+          history.replaceState(null, '', url);
+        });
+      });
+
+      // Категория из адреса: на главную можно прийти со страницы кейса по ссылке ?c=…
+      const fromUrl = new URLSearchParams(location.search).get('c');
+      if (fromUrl && [...links].some((l) => l.dataset.menuItem === fromUrl)) select(fromUrl);
+    }
+  }
 </script>

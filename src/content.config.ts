@@ -62,14 +62,18 @@ const projects = defineCollection({
 
 const articles = defineCollection({
   loader: byFolder('articles'),
-  schema: z.object({
-    title: z.string(),
-    /** Название в списке, если отличается от заголовка */
-    listTitle: z.string().optional(),
-    date: z.coerce.date(),
-    hidden: z.boolean().default(false),
-    description: z.string().optional(),
-  }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      /** Название в списке, если отличается от заголовка */
+      listTitle: z.string().optional(),
+      date: z.coerce.date(),
+      /** Обложка карточки в общей сетке. Без неё на карточке название на сером фоне */
+      cover: image().optional(),
+      coverAlt: z.string().optional(),
+      hidden: z.boolean().default(false),
+      description: z.string().optional(),
+    }),
 });
 
 /**

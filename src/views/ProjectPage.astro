@@ -27,10 +27,10 @@ const meta = [
 ].filter((m) => m.value);
 ---
 
-<BaseLayout title={`${project.title} — ${t('site.name')}`} description={project.description} ogImage={data.cover}>
+<BaseLayout title={`${project.title} — ${t('site.name')}`} description={project.description} ogImage={data.cover} current={data.category}>
   <article class="ids__wrapper L">
     <div class="ids__space L"></div>
-    <p><a class="project-back" href={localePath(lang, 'projects')}>← {t('nav.allProjects')}</a></p>
+    <p><a class="project-back" href={localePath(lang)}>← {t('nav.allProjects')}</a></p>
     <div class="ids__space S"></div>
     <h1 class="S">{project.title}</h1>
     <dl class="project-meta">

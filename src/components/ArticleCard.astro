@@ -1,0 +1,40 @@
+---
+import { Image } from 'astro:assets';
+import type { LocalizedArticle } from '../lib/content';
+import { coverTone } from '../lib/cover-tone';
+
+interface Props {
+  article: LocalizedArticle;
+}
+
+const { article } = Astro.props;
+const { cover } = article.entry.data;
+const tone = cover ? await coverTone(cover) : undefined;
+---
+
+<!-- Статья в общей сетке: выглядит как карточка проекта, фильтр «статьи».
+     Без обложки — серая карточка с подписью -->
+<a
+  class:list={['ids__sequence-item project-card', { 'is-dark': tone?.dark }]}
+  href={article.url}
+  data-category="articles"
+  style={tone && `--tone: ${tone.color}`}
+>
+  <div class="project-card__cover">
+    {
+      cover && (
+        <Image
+          src={cover}
+          alt={article.coverAlt}
+          widths={[400, 800, 1200, 1600]}
+          sizes="(width < 768px) 100vw, 34vw"
+          format="avif"
+          loading="lazy"
+        />
+      )
+    }
+  </div>
+  <div class="project-card__caption">
+    <h3 class="project-card__title">{article.listTitle}</h3>
+  </div>
+</a>

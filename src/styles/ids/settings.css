@@ -1,22 +1,20 @@
 /* Fonts
-   Основной шрифт — Proto Grotesk (Production Type). Пока подключён через local():
-   браузер берёт шрифт, установленный на компьютере, файлы в репозиторий не кладём,
-   потому что у нас только десктопная лицензия. Для публикации нужна веб-лицензия
-   и файлы woff2 — тогда сюда добавится url(). У посетителей без шрифта — Inter. */
+   Основной шрифт — Proto Grotesk (Production Type), веб-версии Regular и Light
+   из src/fonts. Других начертаний у шрифта нет. Inter — запасной. */
 
 @font-face {
   font-family: "Proto Grotesk";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: local("Proto Grotesk"), local("ProtoGrotesk-Regular");
+  src: url("../../fonts/ProtoGrotesk-Regular.woff2") format("woff2");
 }
 @font-face {
   font-family: "Proto Grotesk";
   font-style: normal;
   font-weight: 300;
   font-display: swap;
-  src: local("Proto Grotesk Light"), local("ProtoGrotesk-Light");
+  src: url("../../fonts/ProtoGrotesk-Light.woff2") format("woff2");
 }
 
 /* Запасной шрифт из IDS */
@@ -31,7 +29,7 @@
 body {
   font-family: "Proto Grotesk", Inter, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
-  font-weight: 400;
+  font-weight: 300;
 }
 
 /* Density */

@@ -1,31 +1,34 @@
 ---
 import { Image } from 'astro:assets';
 import type { LocalizedProject } from '../lib/content';
-import { categoryLabel } from '../data/categories';
-import type { Lang } from '../i18n/ui';
+import { coverTone } from '../lib/cover-tone';
 
 interface Props {
   project: LocalizedProject;
-  lang: Lang;
 }
 
-const { project, lang } = Astro.props;
+const { project } = Astro.props;
 const { entry } = project;
+const tone = await coverTone(entry.data.cover);
 ---
 
-<a class="ids__sequence-item project-card" href={project.url} data-category={entry.data.category}>
-  <div class="project-card__cover ids__rounded">
+<a
+  class:list={['ids__sequence-item project-card', { 'is-dark': tone.dark }]}
+  href={project.url}
+  data-category={entry.data.category}
+  style={`--tone: ${tone.color}`}
+>
+  <div class="project-card__cover">
     <Image
       src={entry.data.cover}
       alt={project.coverAlt}
-      widths={[400, 800, 1200]}
-      sizes="(width < 768px) 50vw, 30vw"
+      widths={[400, 800, 1200, 1600]}
+      sizes="(width < 768px) 100vw, 34vw"
       format="avif"
       loading="lazy"
     />
   </div>
-  <h3 class="project-card__title">{project.title}</h3>
-  <p class="project-card__meta">
-    {categoryLabel(entry.data.category, lang)}, {entry.data.year}
-  </p>
+  <div class="project-card__caption">
+    <h3 class="project-card__title">{project.title}</h3>
+  </div>
 </a>

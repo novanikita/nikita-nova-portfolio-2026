@@ -23,6 +23,7 @@ export interface LocalizedArticle {
   translation?: Translation;
   title: string;
   listTitle: string;
+  coverAlt: string;
   description?: string;
   url: string;
 }
@@ -55,6 +56,7 @@ function localizeArticle(entry: Article, lang: Lang, tr?: Translation): Localize
     translation: lang === 'en' ? tr : undefined,
     title,
     listTitle: t?.listTitle ?? (t ? t.title : entry.data.listTitle ?? entry.data.title),
+    coverAlt: t?.coverAlt ?? entry.data.coverAlt ?? title,
     description: t?.description ?? entry.data.description,
     url: localePath(lang, `articles/${entry.id}`),
   };
@@ -69,13 +71,6 @@ export async function getProjects(lang: Lang): Promise<LocalizedProject[]> {
   return projects
     .sort((a, b) => a.data.order - b.data.order)
     .map((p) => localizeProject(p, lang, tr.get(`projects/${p.id}`)));
-}
-
-/** Проекты для главной: отмеченные featured, а если таких нет — все */
-export async function getFeaturedProjects(lang: Lang): Promise<LocalizedProject[]> {
-  const all = await getProjects(lang);
-  const featured = all.filter((p) => p.entry.data.featured);
-  return featured.length ? featured : all;
 }
 
 export async function localizeProjectEntry(entry: Project, lang: Lang): Promise<LocalizedProject> {
