@@ -12,7 +12,6 @@ export interface LocalizedProject {
   translation?: Translation;
   title: string;
   client?: string;
-  scope?: string;
   coverAlt: string;
   description?: string;
   url: string;
@@ -41,7 +40,6 @@ function localizeProject(entry: Project, lang: Lang, tr?: Translation): Localize
     translation: lang === 'en' ? tr : undefined,
     title,
     client: t?.client ?? entry.data.client,
-    scope: t?.scope ?? entry.data.scope,
     coverAlt: t?.coverAlt ?? entry.data.coverAlt ?? title,
     description: t?.description ?? entry.data.description,
     url: localePath(lang, `projects/${entry.id}`),
@@ -62,28 +60,20 @@ function localizeArticle(entry: Article, lang: Lang, tr?: Translation): Localize
   };
 }
 
-/** Все видимые проекты по порядку */
+/** Все видимые проекты: от новых к старым, при одинаковой дате по order */
 export async function getProjects(lang: Lang): Promise<LocalizedProject[]> {
   const [projects, tr] = await Promise.all([
     getCollection('projects', (p) => !p.data.hidden),
     translationsMap(),
   ]);
   return projects
-    .sort((a, b) => a.data.order - b.data.order)
+    .sort((a, b) => b.data.date.localeCompare(a.data.date) || a.data.order - b.data.order)
     .map((p) => localizeProject(p, lang, tr.get(`projects/${p.id}`)));
 }
 
 export async function localizeProjectEntry(entry: Project, lang: Lang): Promise<LocalizedProject> {
   const tr = await translationsMap();
   return localizeProject(entry, lang, tr.get(`projects/${entry.id}`));
-}
-
-/** Следующий проект по порядку, по кругу. Скрытые пропускаются. */
-export async function getNextProject(current: Project, lang: Lang): Promise<LocalizedProject | undefined> {
-  const all = await getProjects(lang);
-  if (all.length < 2) return undefined;
-  const i = all.findIndex((p) => p.entry.id === current.id);
-  return all[(i + 1) % all.length];
 }
 
 export async function getArticles(lang: Lang): Promise<LocalizedArticle[]> {
@@ -104,6 +94,34 @@ export async function localizeArticleEntry(entry: Article, lang: Lang): Promise<
 /** Текст записи на нужном языке: en.md, если есть, иначе index.md */
 export async function renderLocalized(item: { entry: Project | Article; translation?: Translation }) {
   return render(item.translation ?? item.entry);
+}
+
+/** Блоки текста кейса на нужном языке, разделённые в Markdown комментарием <!-- text --> */
+export function projectTextBlocks(project: LocalizedProject): string[] {
+  const html = (project.translation ?? project.entry).rendered?.html ?? '';
+  return html.split(/<!--\s*text\s*-->/).map((block) => block.trim());
+}
+
+/** Начало текста для превью ссылки: целые предложения, примерно до 160 знаков */
+export function textExcerpt(html: string, limit = 160): string {
+  const text = html
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, '\u00a0')
+    .replace(/&quot;/g, '"')
+    .replace(/&#x27;|&#39;/g, "'")
+    .replace(/&#x3C;|&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/[ \n]+/g, ' ')
+    .trim();
+  if (text.length <= limit) return text;
+  let result = '';
+  for (const sentence of text.match(/[^.!?…]+[.!?…]+(\s|$)|[^.!?…]+$/g) ?? []) {
+    if ((result + sentence).trim().length > limit) break;
+    result += sentence;
+  }
+  if (result) return result.trim();
+  return `${text.slice(0, limit).replace(/[\s\u00a0]+\S*$/, '')}…`;
 }
 
 export function formatDate(date: Date, lang: Lang): string {

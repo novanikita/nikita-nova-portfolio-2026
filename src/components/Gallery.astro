@@ -2,7 +2,9 @@
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 
-type Figure = CollectionEntry<'projects'>['data']['galleries'][number][number];
+type Item = CollectionEntry<'projects'>['data']['gallery'][number];
+type Figure = Exclude<Item, { text: true }>;
+type Size = Figure['size'];
 
 interface Props {
   figures: Figure[];
@@ -11,6 +13,46 @@ interface Props {
 }
 
 const { figures, first = false } = Astro.props;
+
+/** Сколько частей из 12 занимает картинка и какие файлы для неё готовить */
+const sizes: Record<Size, { span: number; widths: number[]; sizes: string }> = {
+  big: { span: 12, widths: [800, 1400, 2000, 2800], sizes: '100vw' },
+  half: { span: 6, widths: [600, 1000, 1400, 2000], sizes: '(width < 768px) 100vw, 50vw' },
+  third: { span: 4, widths: [400, 800, 1400], sizes: '(width < 768px) 100vw, 34vw' },
+  fourth: { span: 3, widths: [400, 800, 1400], sizes: '(width < 768px) 100vw, 25vw' },
+};
+
+const source = (f: Figure) => ('image' in f ? f.image : f.poster);
+const fileName = (f: Figure) =>
+  'image' in f ? (f.image as ImageMetadata & { fsPath?: string }).fsPath?.split('/').pop() ?? f.image.src : f.video;
+/** Высота картинки в ряду при её доле ширины */
+const rowHeight = (f: Figure) => (sizes[f.size].span * source(f).height) / source(f).width;
+
+// Складываем картинки в ряды по 12 частей, как это сделает сетка
+const rows: Figure[][] = [];
+let filled = 12;
+for (const f of figures) {
+  if (filled + sizes[f.size].span > 12) {
+    rows.push([]);
+    filled = 0;
+  }
+  rows.at(-1)!.push(f);
+  filled += sizes[f.size].span;
+}
+
+// В ряду задаёт высоту самая низкая картинка, остальные обрезаются под неё
+const cropped = new Set<Figure>();
+for (const row of rows) {
+  const lowest = Math.min(...row.map(rowHeight));
+  for (const f of row) if (rowHeight(f) > lowest * 1.002) cropped.add(f);
+
+  if (import.meta.env.PROD) {
+    const names = row.map(fileName).join(', ');
+    if (row.reduce((sum, f) => sum + sizes[f.size].span, 0) !== 12) console.warn(`[галерея] неполный ряд: ${names}`);
+    const list = row.filter((f) => cropped.has(f)).map(fileName);
+    if (list.length) console.warn(`[галерея] обрезаны: ${list.join(', ')}`);
+  }
+}
 
 /** Адреса вида /video/x.mp4 из public/ с учётом базового пути сайта */
 const withBase = (path: string) =>
@@ -21,21 +63,47 @@ const withBase = (path: string) =>
   {
     figures.map((f, i) =>
       'image' in f ? (
-        <figure class={f.size}>
+        <figure class:list={[f.size, { 'is-cropped': cropped.has(f) }]}>
           <Image
             src={f.image}
             alt={f.alt ?? ''}
-            widths={f.size === 'XL' ? [800, 1400, 2000] : [600, 1000, 1400]}
-            sizes={f.size === 'XL' ? '(width < 768px) 100vw, 85vw' : '(width < 768px) 100vw, 42vw'}
+            widths={sizes[f.size].widths}
+            sizes={sizes[f.size].sizes}
             format="avif"
             loading={first && i === 0 ? 'eager' : 'lazy'}
           />
         </figure>
       ) : (
-        <figure class={f.size}>
-          <video src={withBase(f.video)} poster={f.poster?.src} autoplay muted loop playsinline preload="metadata" />
+        <figure class:list={[f.size, { 'is-cropped': cropped.has(f) }]}>
+          <video
+            src={withBase(f.video)}
+            poster={f.poster.src}
+            width={f.poster.width}
+            height={f.poster.height}
+            muted
+            loop
+            playsinline
+            preload="none"
+          />
         </figure>
       ),
     )
   }
 </div>
+
+<script>
+  // Видео играет, только пока видно на экране. При «уменьшить движение» остаётся постер
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const { target, isIntersecting } of entries) {
+          const video = target as HTMLVideoElement;
+          if (isIntersecting) video.play().catch(() => {});
+          else video.pause();
+        }
+      },
+      { threshold: 0.25 },
+    );
+    document.querySelectorAll('.gallery video').forEach((video) => observer.observe(video));
+  }
+</script>

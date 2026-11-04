@@ -1,27 +1,29 @@
 ---
 title: "Упаковка для открытия Додо Пиццы в Дубае"
 category: packaging
-year: 2023
+date: "2023"
 client: "Додо Пицца"
 order: 50
-cover: ./cover.avif
-galleries:
-  - - image: ./package-dubai-8.avif
-      size: XL
-    - image: ./package-dubai-1.avif
-    - image: ./package-dubai-2.avif
-    - image: ./package-dubai-3.avif
-    - image: ./package-dubai-4.avif
-    - image: ./package-dubai-5.avif
-    - image: ./package-dubai-6.avif
-    - image: ./package-dubai-7.avif
-    - image: ./package-dubai-9.avif
+cover: ./dodo-dubai-package-cover.avif
+gallery:
+  - image: ./dodo-dubai-package-1-big.avif
+    size: big
+  - image: ./dodo-dubai-package-2-half.avif
+    size: half
+  - image: ./dodo-dubai-package-3-half.avif
+    size: half
+  - image: ./dodo-dubai-package-4-half.avif
+    size: half
+  - image: ./dodo-dubai-package-5-half.avif
+    size: half
+  - image: ./dodo-dubai-package-6-half.avif
+    size: half
+  - image: ./dodo-dubai-package-7-half.avif
+    size: half
+  - image: ./dodo-dubai-package-8-half.avif
+    size: half
+  - image: ./dodo-dubai-package-9-half.avif
+    size: half
 ---
 
-Задача: Предложить упаковку для запуска в новой стране.
-
-Главная идея этого дизайна — быть красивым. Серия разрабатывалась к запуску пиццерии в Дубае.
-
-Сделано за 1 месяц в 2023 году
-
-Сделано с [Интуицией](https://intuition.team/ru/i): Женя Арутюнов и я
+Задача была предложить упаковку для запуска в новой стране. Главная идея этого дизайна — быть красивым. Серия разрабатывалась к запуску пиццерии в Дубае. Сделано с [Интуицией](https://intuition.team/ru/i): Женя Арутюнов и я

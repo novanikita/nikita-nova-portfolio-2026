@@ -1,40 +1,63 @@
 ---
 title: "Концепция упаковки для Commo"
 category: packaging
-year: 2025
+date: "2025"
 client: "Commo"
 order: 30
-cover: ./cover.avif
-galleries:
-  - - image: ./commo-1.avif
-      size: XL
-    - image: ./commo-2.avif
-    - image: ./commo-3.avif
-    - image: ./commo-4.avif
-    - image: ./commo-5.avif
-      size: XL
-    - image: ./commo-6.avif
-    - image: ./commo-7.avif
-    - image: ./commo-8.avif
-    - image: ./commo-9.avif
-    - image: ./commo-10.avif
-  - - image: ./commo-11.avif
-    - image: ./commo-12.avif
-    - image: ./commo-13.avif
-    - image: ./commo-15.avif
-    - image: ./commo-16.avif
-    - image: ./commo-17.avif
-    - image: ./commo-18.avif
-    - image: ./commo-19.avif
-      size: XL
-    - image: ./commo-20.avif
-    - image: ./commo-21.avif
-    - image: ./commo-22.avif
-    - image: ./commo-23.avif
-    - image: ./commo-24.avif
-    - image: ./commo-25.avif
-    - image: ./commo-26.avif
-    - image: ./commo-27.avif
+cover: ./commo-cover.avif
+gallery:
+  - image: ./commo-1-big.avif
+    size: big
+  - image: ./commo-2-half.avif
+    size: half
+  - image: ./commo-3-half.avif
+    size: half
+  - image: ./commo-4-half.avif
+    size: half
+  - image: ./commo-5-big.avif
+    size: big
+  - image: ./commo-6-half.avif
+    size: half
+  - image: ./commo-7-half.avif
+    size: half
+  - image: ./commo-8-half.avif
+    size: half
+  - image: ./commo-9-half.avif
+    size: half
+  - image: ./commo-10-half.avif
+    size: half
+  - image: ./commo-11-half.avif
+    size: half
+  - image: ./commo-12-half.avif
+    size: half
+  - image: ./commo-13-half.avif
+    size: half
+  - image: ./commo-14-half.avif
+    size: half
+  - image: ./commo-15-half.avif
+    size: half
+  - image: ./commo-16-half.avif
+    size: half
+  - image: ./commo-17-half.avif
+    size: half
+  - image: ./commo-18-big.avif
+    size: big
+  - image: ./commo-19-half.avif
+    size: half
+  - image: ./commo-20-half.avif
+    size: half
+  - image: ./commo-21-half.avif
+    size: half
+  - image: ./commo-22-half.avif
+    size: half
+  - image: ./commo-23-half.avif
+    size: half
+  - image: ./commo-24-half.avif
+    size: half
+  - image: ./commo-25-half.avif
+    size: half
+  - image: ./commo-26-half.avif
+    size: half
 ---
 
 Сделано в рамках тестового задания

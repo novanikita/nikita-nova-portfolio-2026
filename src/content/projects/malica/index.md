@@ -1,108 +1,202 @@
 ---
 title: "Книга «Сторителлинг ненецкой малицы»"
 category: books
-year: 2021
+date: "2021"
 order: 70
-cover: ./cover.avif
-galleries:
-  - - image: ./1.avif
-      size: XL
-    - image: ./malica-1.avif
-    - image: ./malica-2.avif
-    - image: ./malica-3.avif
-    - image: ./malica-4.avif
-    - image: ./malica-5.avif
-    - image: ./malica-6.avif
-    - image: ./malica-7.avif
-    - image: ./malica-8.avif
-    - image: ./malica-9.avif
-    - image: ./malica-10.avif
-    - image: ./malica-11.avif
-    - image: ./malica-12.avif
-    - image: ./malica-13.avif
-    - image: ./malica-14.avif
-    - image: ./malica-15.avif
-    - image: ./malica-16.avif
-    - image: ./malica-17.avif
-    - image: ./malica-18.avif
-    - image: ./malica-19.avif
-    - image: ./2.avif
-      size: XL
-    - image: ./3.avif
-    - image: ./4.avif
-    - image: ./5.avif
-    - image: ./6.avif
-    - image: ./7.avif
-    - image: ./8.avif
-    - image: ./9.avif
-    - image: ./10.avif
-    - image: ./11.avif
-    - image: ./13.avif
-    - image: ./14.avif
-    - image: ./15.avif
-    - image: ./16.avif
-    - image: ./17.avif
-    - image: ./18.avif
-    - image: ./19.avif
-    - image: ./20.avif
-    - image: ./21.avif
-    - image: ./22.avif
-    - image: ./23.avif
-    - image: ./24.avif
-    - image: ./25.avif
-    - image: ./26.avif
-    - image: ./27.avif
-    - image: ./28.avif
-    - image: ./29.avif
-    - image: ./30.avif
-    - image: ./31.avif
-    - image: ./32.avif
-    - image: ./33.avif
-    - image: ./34.avif
-    - image: ./35.avif
-    - image: ./36.avif
-    - image: ./37.avif
-    - image: ./38.avif
-    - image: ./39.avif
-    - image: ./40.avif
-    - image: ./41.avif
-    - image: ./42.avif
-    - image: ./43.avif
-    - image: ./44.avif
-    - image: ./45.avif
-    - image: ./46.avif
-    - image: ./47.avif
-    - image: ./48.avif
-    - image: ./49.avif
-    - image: ./50.avif
-    - image: ./51.avif
-    - image: ./52.avif
-    - image: ./53.avif
-    - image: ./54.avif
-    - image: ./55.avif
-    - image: ./56.avif
-    - image: ./57.avif
-    - image: ./58.avif
-    - image: ./59.avif
-    - image: ./60.avif
-    - image: ./61.avif
-    - image: ./62.avif
-    - image: ./63.avif
-    - image: ./64.avif
-    - image: ./65.avif
-    - image: ./66.avif
-    - image: ./67.avif
-    - image: ./68.avif
-    - image: ./69.avif
-    - image: ./70.avif
-    - image: ./71.avif
-    - image: ./72.avif
-    - image: ./73.avif
-    - image: ./74.avif
-    - image: ./75.avif
-    - image: ./111.avif
-    - image: ./112.avif
-    - image: ./113.avif
+cover: ./malica-cover.avif
+gallery:
+  - image: ./malica-1-big.avif
+    size: big
+  - image: ./malica-2-half.avif
+    size: half
+  - image: ./malica-3-half.avif
+    size: half
+  - image: ./malica-4-half.avif
+    size: half
+  - image: ./malica-5-half.avif
+    size: half
+  - image: ./malica-6-half.avif
+    size: half
+  - image: ./malica-7-half.avif
+    size: half
+  - image: ./malica-8-half.avif
+    size: half
+  - image: ./malica-9-half.avif
+    size: half
+  - image: ./malica-10-half.avif
+    size: half
+  - image: ./malica-11-half.avif
+    size: half
+  - image: ./malica-12-half.avif
+    size: half
+  - image: ./malica-13-half.avif
+    size: half
+  - image: ./malica-14-half.avif
+    size: half
+  - image: ./malica-15-half.avif
+    size: half
+  - image: ./malica-16-half.avif
+    size: half
+  - image: ./malica-17-half.avif
+    size: half
+  - image: ./malica-18-half.avif
+    size: half
+  - image: ./malica-19-half.avif
+    size: half
+  - image: ./malica-20-half.avif
+    size: half
+  - image: ./malica-21-big.avif
+    size: big
+  - image: ./malica-22-half.avif
+    size: half
+  - image: ./malica-23-half.avif
+    size: half
+  - image: ./malica-24-half.avif
+    size: half
+  - image: ./malica-25-half.avif
+    size: half
+  - image: ./malica-26-half.avif
+    size: half
+  - image: ./malica-27-half.avif
+    size: half
+  - image: ./malica-28-half.avif
+    size: half
+  - image: ./malica-29-half.avif
+    size: half
+  - image: ./malica-30-half.avif
+    size: half
+  - image: ./malica-31-half.avif
+    size: half
+  - image: ./malica-32-half.avif
+    size: half
+  - image: ./malica-33-half.avif
+    size: half
+  - image: ./malica-34-half.avif
+    size: half
+  - image: ./malica-35-half.avif
+    size: half
+  - image: ./malica-36-half.avif
+    size: half
+  - image: ./malica-37-half.avif
+    size: half
+  - image: ./malica-38-half.avif
+    size: half
+  - image: ./malica-39-half.avif
+    size: half
+  - image: ./malica-40-half.avif
+    size: half
+  - image: ./malica-41-half.avif
+    size: half
+  - image: ./malica-42-half.avif
+    size: half
+  - image: ./malica-43-half.avif
+    size: half
+  - image: ./malica-44-half.avif
+    size: half
+  - image: ./malica-45-half.avif
+    size: half
+  - image: ./malica-46-half.avif
+    size: half
+  - image: ./malica-47-half.avif
+    size: half
+  - image: ./malica-48-half.avif
+    size: half
+  - image: ./malica-49-half.avif
+    size: half
+  - image: ./malica-50-half.avif
+    size: half
+  - image: ./malica-51-half.avif
+    size: half
+  - image: ./malica-52-half.avif
+    size: half
+  - image: ./malica-53-half.avif
+    size: half
+  - image: ./malica-54-half.avif
+    size: half
+  - image: ./malica-55-half.avif
+    size: half
+  - image: ./malica-56-half.avif
+    size: half
+  - image: ./malica-57-half.avif
+    size: half
+  - image: ./malica-58-half.avif
+    size: half
+  - image: ./malica-59-half.avif
+    size: half
+  - image: ./malica-60-half.avif
+    size: half
+  - image: ./malica-61-half.avif
+    size: half
+  - image: ./malica-62-half.avif
+    size: half
+  - image: ./malica-63-half.avif
+    size: half
+  - image: ./malica-64-half.avif
+    size: half
+  - image: ./malica-65-half.avif
+    size: half
+  - image: ./malica-66-half.avif
+    size: half
+  - image: ./malica-67-half.avif
+    size: half
+  - image: ./malica-68-half.avif
+    size: half
+  - image: ./malica-69-half.avif
+    size: half
+  - image: ./malica-70-half.avif
+    size: half
+  - image: ./malica-71-half.avif
+    size: half
+  - image: ./malica-72-half.avif
+    size: half
+  - image: ./malica-73-half.avif
+    size: half
+  - image: ./malica-74-half.avif
+    size: half
+  - image: ./malica-75-half.avif
+    size: half
+  - image: ./malica-76-half.avif
+    size: half
+  - image: ./malica-77-half.avif
+    size: half
+  - image: ./malica-78-half.avif
+    size: half
+  - image: ./malica-79-half.avif
+    size: half
+  - image: ./malica-80-half.avif
+    size: half
+  - image: ./malica-81-half.avif
+    size: half
+  - image: ./malica-82-half.avif
+    size: half
+  - image: ./malica-83-half.avif
+    size: half
+  - image: ./malica-84-half.avif
+    size: half
+  - image: ./malica-85-half.avif
+    size: half
+  - image: ./malica-86-half.avif
+    size: half
+  - image: ./malica-87-half.avif
+    size: half
+  - image: ./malica-88-half.avif
+    size: half
+  - image: ./malica-89-half.avif
+    size: half
+  - image: ./malica-90-half.avif
+    size: half
+  - image: ./malica-91-half.avif
+    size: half
+  - image: ./malica-92-half.avif
+    size: half
+  - image: ./malica-93-half.avif
+    size: half
+  - image: ./malica-94-half.avif
+    size: half
+  - image: ./malica-95-half.avif
+    size: half
+  - image: ./malica-96-half.avif
+    size: half
 ---
 
 Задача: задизайнить книгу про народное творчество родного края.

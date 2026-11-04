@@ -1,61 +1,103 @@
 ---
 title: "Обложка книги «Додо от подвала до миллиарда»"
 category: books
-year: 2025
+date: "2025"
 client: "Додо Пицца"
 order: 20
-cover: ./cover.avif
-galleries:
-  - - image: ./dodo-book-cover-1.avif
-    - image: ./dodo-book-cover-2.avif
-    - image: ./dodo-book-cover-3.avif
-    - image: ./dodo-book-cover-38.avif
-      size: XL
-    - image: ./dodo-book-cover-4.avif
-    - image: ./dodo-book-cover-5.avif
-    - image: ./dodo-book-cover-6.avif
-    - image: ./dodo-book-cover-39.avif
-      size: XL
-    - image: ./dodo-book-cover-7.avif
-    - image: ./dodo-book-cover-8.avif
-    - image: ./dodo-book-cover-9.avif
-    - image: ./dodo-book-cover-40.avif
-      size: XL
-    - image: ./dodo-book-cover-10.avif
-    - image: ./dodo-book-cover-11.avif
-    - image: ./dodo-book-cover-12.avif
-    - image: ./dodo-book-cover-41.avif
-      size: XL
-    - image: ./dodo-book-cover-13.avif
-    - image: ./dodo-book-cover-14.avif
-    - image: ./dodo-book-cover-15.avif
-    - image: ./dodo-book-cover-16.avif
-    - image: ./dodo-book-cover-17.avif
-    - image: ./dodo-book-cover-18.avif
-    - image: ./dodo-book-cover-19.avif
-    - image: ./dodo-book-cover-20.avif
-    - image: ./dodo-book-cover-21.avif
-    - image: ./dodo-book-cover-22.avif
-    - image: ./dodo-book-cover-23.avif
-    - image: ./dodo-book-cover-24.avif
-    - image: ./dodo-book-cover-25.avif
-    - image: ./dodo-book-cover-26.avif
-    - image: ./dodo-book-cover-27.avif
-    - image: ./dodo-book-cover-28.avif
-    - image: ./dodo-book-cover-29.avif
-    - image: ./dodo-book-cover-30.avif
-    - image: ./dodo-book-cover-31.avif
-    - image: ./dodo-book-cover-32.avif
-    - image: ./dodo-book-cover-33.avif
-    - image: ./dodo-book-cover-34.avif
-    - image: ./dodo-book-cover-35.avif
-    - image: ./dodo-book-cover-36.avif
-    - image: ./dodo-book-cover-37.avif
-    - image: ./dodo-book-cover-49.avif
-    - image: ./dodo-book-cover-50.avif
-    - image: ./dodo-book-cover-51.avif
-    - image: ./dodo-book-cover-52.avif
-    - image: ./dodo-book-cover-53.avif
+cover: ./dodo-book-cover-cover.avif
+gallery:
+  - image: ./dodo-book-cover-1-half.avif
+    size: half
+  - image: ./dodo-book-cover-2-half.avif
+    size: half
+  - image: ./dodo-book-cover-3-half.avif
+    size: half
+  - image: ./dodo-book-cover-4-big.avif
+    size: big
+  - image: ./dodo-book-cover-5-half.avif
+    size: half
+  - image: ./dodo-book-cover-6-half.avif
+    size: half
+  - image: ./dodo-book-cover-7-half.avif
+    size: half
+  - image: ./dodo-book-cover-8-big.avif
+    size: big
+  - image: ./dodo-book-cover-9-half.avif
+    size: half
+  - image: ./dodo-book-cover-10-half.avif
+    size: half
+  - image: ./dodo-book-cover-11-half.avif
+    size: half
+  - image: ./dodo-book-cover-12-big.avif
+    size: big
+  - image: ./dodo-book-cover-13-half.avif
+    size: half
+  - image: ./dodo-book-cover-14-half.avif
+    size: half
+  - image: ./dodo-book-cover-15-half.avif
+    size: half
+  - image: ./dodo-book-cover-16-big.avif
+    size: big
+  - image: ./dodo-book-cover-17-half.avif
+    size: half
+  - image: ./dodo-book-cover-18-half.avif
+    size: half
+  - image: ./dodo-book-cover-19-half.avif
+    size: half
+  - image: ./dodo-book-cover-20-half.avif
+    size: half
+  - image: ./dodo-book-cover-21-half.avif
+    size: half
+  - image: ./dodo-book-cover-22-half.avif
+    size: half
+  - image: ./dodo-book-cover-23-half.avif
+    size: half
+  - image: ./dodo-book-cover-24-half.avif
+    size: half
+  - image: ./dodo-book-cover-25-half.avif
+    size: half
+  - image: ./dodo-book-cover-26-half.avif
+    size: half
+  - image: ./dodo-book-cover-27-half.avif
+    size: half
+  - image: ./dodo-book-cover-28-half.avif
+    size: half
+  - image: ./dodo-book-cover-29-half.avif
+    size: half
+  - image: ./dodo-book-cover-30-half.avif
+    size: half
+  - image: ./dodo-book-cover-31-half.avif
+    size: half
+  - image: ./dodo-book-cover-32-half.avif
+    size: half
+  - image: ./dodo-book-cover-33-half.avif
+    size: half
+  - image: ./dodo-book-cover-34-half.avif
+    size: half
+  - image: ./dodo-book-cover-35-half.avif
+    size: half
+  - image: ./dodo-book-cover-36-half.avif
+    size: half
+  - image: ./dodo-book-cover-37-half.avif
+    size: half
+  - image: ./dodo-book-cover-38-half.avif
+    size: half
+  - image: ./dodo-book-cover-39-half.avif
+    size: half
+  - image: ./dodo-book-cover-40-half.avif
+    size: half
+  - image: ./dodo-book-cover-41-half.avif
+    size: half
+  - image: ./dodo-book-cover-42-half.avif
+    size: half
+  - image: ./dodo-book-cover-43-half.avif
+    size: half
+  - image: ./dodo-book-cover-44-half.avif
+    size: half
+  - image: ./dodo-book-cover-45-half.avif
+    size: half
+  - image: ./dodo-book-cover-46-half.avif
+    size: half
 ---
 
 Задача: задизайнить обложку новой книги про Додо Пиццу

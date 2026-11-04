@@ -1,184 +1,354 @@
 ---
 title: "Книга «Уличная волна»"
 category: books
-year: 2022
+date: "2022"
 order: 60
-cover: ./cover.avif
-galleries:
-  - - image: ./1.avif
-      size: XL
-    - image: ./street-wave-10.avif
-    - image: ./street-wave-11.avif
-    - image: ./street-wave-12.avif
-    - image: ./street-wave-13.avif
-    - image: ./street-wave-14.avif
-    - image: ./street-wave-1.avif
-    - image: ./street-wave-2.avif
-    - image: ./street-wave-3.avif
-    - image: ./street-wave-4.avif
-    - image: ./street-wave-5.avif
-    - image: ./street-wave-6.avif
-    - image: ./street-wave-7.avif
-    - image: ./street-wave-8.avif
-    - image: ./street-wave-9.avif
-  - - image: ./2.avif
-      size: XL
-    - image: ./3.avif
-    - image: ./4.avif
-    - image: ./5.avif
-    - image: ./6.avif
-    - image: ./7.avif
-    - image: ./8.avif
-    - image: ./9.avif
-    - image: ./10.avif
-    - image: ./11.avif
-    - image: ./12.avif
-    - image: ./13.avif
-    - image: ./14.avif
-    - image: ./15.avif
-    - image: ./16.avif
-    - image: ./17.avif
-    - image: ./18.avif
-    - image: ./19.avif
-    - image: ./20.avif
-    - image: ./21.avif
-    - image: ./22.avif
-    - image: ./23.avif
-    - image: ./24.avif
-    - image: ./25.avif
-    - image: ./26.avif
-    - image: ./27.avif
-    - image: ./28.avif
-    - image: ./29.avif
-    - image: ./30.avif
-    - image: ./31.avif
-    - image: ./32.avif
-    - image: ./33.avif
-    - image: ./34.avif
-    - image: ./35.avif
-    - image: ./36.avif
-    - image: ./37.avif
-    - image: ./38.avif
-    - image: ./39.avif
-    - image: ./40.avif
-    - image: ./41.avif
-    - image: ./42.avif
-    - image: ./43.avif
-    - image: ./44.avif
-    - image: ./45.avif
-    - image: ./46.avif
-    - image: ./47.avif
-    - image: ./48.avif
-    - image: ./49.avif
-    - image: ./50.avif
-    - image: ./51.avif
-    - image: ./52.avif
-    - image: ./53.avif
-    - image: ./54.avif
-    - image: ./55.avif
-    - image: ./56.avif
-    - image: ./57.avif
-    - image: ./58.avif
-    - image: ./59.avif
-    - image: ./60.avif
-    - image: ./61.avif
-    - image: ./62.avif
-    - image: ./63.avif
-    - image: ./64.avif
-    - image: ./65.avif
-    - image: ./66.avif
-    - image: ./67.avif
-    - image: ./68.avif
-    - image: ./69.avif
-    - image: ./70.avif
-    - image: ./71.avif
-    - image: ./72.avif
-    - image: ./73.avif
-    - image: ./74.avif
-    - image: ./75.avif
-    - image: ./111.avif
-    - image: ./112.avif
-    - image: ./113.avif
-    - image: ./114.avif
-    - image: ./115.avif
-    - image: ./116.avif
-    - image: ./117.avif
-    - image: ./118.avif
-    - image: ./119.avif
-    - image: ./120.avif
-    - image: ./121.avif
-    - image: ./122.avif
-    - image: ./123.avif
-    - image: ./124.avif
-    - image: ./125.avif
-    - image: ./126.avif
-    - image: ./127.avif
-    - image: ./128.avif
-    - image: ./129.avif
-    - image: ./130.avif
-    - image: ./131.avif
-    - image: ./132.avif
-    - image: ./133.avif
-    - image: ./134.avif
-    - image: ./135.avif
-    - image: ./136.avif
-    - image: ./137.avif
-    - image: ./138.avif
-    - image: ./139.avif
-    - image: ./140.avif
-    - image: ./141.avif
-    - image: ./142.avif
-    - image: ./143.avif
-    - image: ./144.avif
-    - image: ./145.avif
-    - image: ./146.avif
-    - image: ./147.avif
-    - image: ./148.avif
-    - image: ./149.avif
-    - image: ./150.avif
-    - image: ./151.avif
-    - image: ./152.avif
-    - image: ./153.avif
-    - image: ./154.avif
-    - image: ./155.avif
-    - image: ./156.avif
-    - image: ./157.avif
-    - image: ./158.avif
-    - image: ./159.avif
-    - image: ./160.avif
-    - image: ./161.avif
-    - image: ./162.avif
-    - image: ./163.avif
-    - image: ./164.avif
-    - image: ./165.avif
-    - image: ./166.avif
-    - image: ./167.avif
-    - image: ./168.avif
-    - image: ./169.avif
-    - image: ./170.avif
-    - image: ./171.avif
-    - image: ./172.avif
-    - image: ./173.avif
-    - image: ./174.avif
-    - image: ./175.avif
-    - image: ./176.avif
-    - image: ./177.avif
-    - image: ./178.avif
-    - image: ./179.avif
-    - image: ./180.avif
-    - image: ./181.avif
-    - image: ./182.avif
-    - image: ./183.avif
-    - image: ./184.avif
-    - image: ./185.avif
-    - image: ./186.avif
-    - image: ./187.avif
-    - image: ./188.avif
-    - image: ./189.avif
-    - image: ./190.avif
-    - image: ./191.avif
-    - image: ./192.avif
-    - image: ./193.avif
+cover: ./street-wave-book-cover.avif
+gallery:
+  - image: ./street-wave-book-1-big.avif
+    size: big
+  - image: ./street-wave-book-2-half.avif
+    size: half
+  - image: ./street-wave-book-3-half.avif
+    size: half
+  - image: ./street-wave-book-4-half.avif
+    size: half
+  - image: ./street-wave-book-5-half.avif
+    size: half
+  - image: ./street-wave-book-6-half.avif
+    size: half
+  - image: ./street-wave-book-7-half.avif
+    size: half
+  - image: ./street-wave-book-8-half.avif
+    size: half
+  - image: ./street-wave-book-9-half.avif
+    size: half
+  - image: ./street-wave-book-10-half.avif
+    size: half
+  - image: ./street-wave-book-11-half.avif
+    size: half
+  - image: ./street-wave-book-12-half.avif
+    size: half
+  - image: ./street-wave-book-13-half.avif
+    size: half
+  - image: ./street-wave-book-14-half.avif
+    size: half
+  - image: ./street-wave-book-15-half.avif
+    size: half
+  - image: ./street-wave-book-16-big.avif
+    size: big
+  - image: ./street-wave-book-17-half.avif
+    size: half
+  - image: ./street-wave-book-18-half.avif
+    size: half
+  - image: ./street-wave-book-19-half.avif
+    size: half
+  - image: ./street-wave-book-20-half.avif
+    size: half
+  - image: ./street-wave-book-21-half.avif
+    size: half
+  - image: ./street-wave-book-22-half.avif
+    size: half
+  - image: ./street-wave-book-23-half.avif
+    size: half
+  - image: ./street-wave-book-24-half.avif
+    size: half
+  - image: ./street-wave-book-25-half.avif
+    size: half
+  - image: ./street-wave-book-26-half.avif
+    size: half
+  - image: ./street-wave-book-27-half.avif
+    size: half
+  - image: ./street-wave-book-28-half.avif
+    size: half
+  - image: ./street-wave-book-29-half.avif
+    size: half
+  - image: ./street-wave-book-30-half.avif
+    size: half
+  - image: ./street-wave-book-31-half.avif
+    size: half
+  - image: ./street-wave-book-32-half.avif
+    size: half
+  - image: ./street-wave-book-33-half.avif
+    size: half
+  - image: ./street-wave-book-34-half.avif
+    size: half
+  - image: ./street-wave-book-35-half.avif
+    size: half
+  - image: ./street-wave-book-36-half.avif
+    size: half
+  - image: ./street-wave-book-37-half.avif
+    size: half
+  - image: ./street-wave-book-38-half.avif
+    size: half
+  - image: ./street-wave-book-39-half.avif
+    size: half
+  - image: ./street-wave-book-40-half.avif
+    size: half
+  - image: ./street-wave-book-41-half.avif
+    size: half
+  - image: ./street-wave-book-42-half.avif
+    size: half
+  - image: ./street-wave-book-43-half.avif
+    size: half
+  - image: ./street-wave-book-44-half.avif
+    size: half
+  - image: ./street-wave-book-45-half.avif
+    size: half
+  - image: ./street-wave-book-46-half.avif
+    size: half
+  - image: ./street-wave-book-47-half.avif
+    size: half
+  - image: ./street-wave-book-48-half.avif
+    size: half
+  - image: ./street-wave-book-49-half.avif
+    size: half
+  - image: ./street-wave-book-50-half.avif
+    size: half
+  - image: ./street-wave-book-51-half.avif
+    size: half
+  - image: ./street-wave-book-52-half.avif
+    size: half
+  - image: ./street-wave-book-53-half.avif
+    size: half
+  - image: ./street-wave-book-54-half.avif
+    size: half
+  - image: ./street-wave-book-55-half.avif
+    size: half
+  - image: ./street-wave-book-56-half.avif
+    size: half
+  - image: ./street-wave-book-57-half.avif
+    size: half
+  - image: ./street-wave-book-58-half.avif
+    size: half
+  - image: ./street-wave-book-59-half.avif
+    size: half
+  - image: ./street-wave-book-60-half.avif
+    size: half
+  - image: ./street-wave-book-61-half.avif
+    size: half
+  - image: ./street-wave-book-62-half.avif
+    size: half
+  - image: ./street-wave-book-63-half.avif
+    size: half
+  - image: ./street-wave-book-64-half.avif
+    size: half
+  - image: ./street-wave-book-65-half.avif
+    size: half
+  - image: ./street-wave-book-66-half.avif
+    size: half
+  - image: ./street-wave-book-67-half.avif
+    size: half
+  - image: ./street-wave-book-68-half.avif
+    size: half
+  - image: ./street-wave-book-69-half.avif
+    size: half
+  - image: ./street-wave-book-70-half.avif
+    size: half
+  - image: ./street-wave-book-71-half.avif
+    size: half
+  - image: ./street-wave-book-72-half.avif
+    size: half
+  - image: ./street-wave-book-73-half.avif
+    size: half
+  - image: ./street-wave-book-74-half.avif
+    size: half
+  - image: ./street-wave-book-75-half.avif
+    size: half
+  - image: ./street-wave-book-76-half.avif
+    size: half
+  - image: ./street-wave-book-77-half.avif
+    size: half
+  - image: ./street-wave-book-78-half.avif
+    size: half
+  - image: ./street-wave-book-79-half.avif
+    size: half
+  - image: ./street-wave-book-80-half.avif
+    size: half
+  - image: ./street-wave-book-81-half.avif
+    size: half
+  - image: ./street-wave-book-82-half.avif
+    size: half
+  - image: ./street-wave-book-83-half.avif
+    size: half
+  - image: ./street-wave-book-84-half.avif
+    size: half
+  - image: ./street-wave-book-85-half.avif
+    size: half
+  - image: ./street-wave-book-86-half.avif
+    size: half
+  - image: ./street-wave-book-87-half.avif
+    size: half
+  - image: ./street-wave-book-88-half.avif
+    size: half
+  - image: ./street-wave-book-89-half.avif
+    size: half
+  - image: ./street-wave-book-90-half.avif
+    size: half
+  - image: ./street-wave-book-91-half.avif
+    size: half
+  - image: ./street-wave-book-92-half.avif
+    size: half
+  - image: ./street-wave-book-93-half.avif
+    size: half
+  - image: ./street-wave-book-94-half.avif
+    size: half
+  - image: ./street-wave-book-95-half.avif
+    size: half
+  - image: ./street-wave-book-96-half.avif
+    size: half
+  - image: ./street-wave-book-97-half.avif
+    size: half
+  - image: ./street-wave-book-98-half.avif
+    size: half
+  - image: ./street-wave-book-99-half.avif
+    size: half
+  - image: ./street-wave-book-100-half.avif
+    size: half
+  - image: ./street-wave-book-101-half.avif
+    size: half
+  - image: ./street-wave-book-102-half.avif
+    size: half
+  - image: ./street-wave-book-103-half.avif
+    size: half
+  - image: ./street-wave-book-104-half.avif
+    size: half
+  - image: ./street-wave-book-105-half.avif
+    size: half
+  - image: ./street-wave-book-106-half.avif
+    size: half
+  - image: ./street-wave-book-107-half.avif
+    size: half
+  - image: ./street-wave-book-108-half.avif
+    size: half
+  - image: ./street-wave-book-109-half.avif
+    size: half
+  - image: ./street-wave-book-110-half.avif
+    size: half
+  - image: ./street-wave-book-111-half.avif
+    size: half
+  - image: ./street-wave-book-112-half.avif
+    size: half
+  - image: ./street-wave-book-113-half.avif
+    size: half
+  - image: ./street-wave-book-114-half.avif
+    size: half
+  - image: ./street-wave-book-115-half.avif
+    size: half
+  - image: ./street-wave-book-116-half.avif
+    size: half
+  - image: ./street-wave-book-117-half.avif
+    size: half
+  - image: ./street-wave-book-118-half.avif
+    size: half
+  - image: ./street-wave-book-119-half.avif
+    size: half
+  - image: ./street-wave-book-120-half.avif
+    size: half
+  - image: ./street-wave-book-121-half.avif
+    size: half
+  - image: ./street-wave-book-122-half.avif
+    size: half
+  - image: ./street-wave-book-123-half.avif
+    size: half
+  - image: ./street-wave-book-124-half.avif
+    size: half
+  - image: ./street-wave-book-125-half.avif
+    size: half
+  - image: ./street-wave-book-126-half.avif
+    size: half
+  - image: ./street-wave-book-127-half.avif
+    size: half
+  - image: ./street-wave-book-128-half.avif
+    size: half
+  - image: ./street-wave-book-129-half.avif
+    size: half
+  - image: ./street-wave-book-130-half.avif
+    size: half
+  - image: ./street-wave-book-131-half.avif
+    size: half
+  - image: ./street-wave-book-132-half.avif
+    size: half
+  - image: ./street-wave-book-133-half.avif
+    size: half
+  - image: ./street-wave-book-134-half.avif
+    size: half
+  - image: ./street-wave-book-135-half.avif
+    size: half
+  - image: ./street-wave-book-136-half.avif
+    size: half
+  - image: ./street-wave-book-137-half.avif
+    size: half
+  - image: ./street-wave-book-138-half.avif
+    size: half
+  - image: ./street-wave-book-139-half.avif
+    size: half
+  - image: ./street-wave-book-140-half.avif
+    size: half
+  - image: ./street-wave-book-141-half.avif
+    size: half
+  - image: ./street-wave-book-142-half.avif
+    size: half
+  - image: ./street-wave-book-143-half.avif
+    size: half
+  - image: ./street-wave-book-144-half.avif
+    size: half
+  - image: ./street-wave-book-145-half.avif
+    size: half
+  - image: ./street-wave-book-146-half.avif
+    size: half
+  - image: ./street-wave-book-147-half.avif
+    size: half
+  - image: ./street-wave-book-148-half.avif
+    size: half
+  - image: ./street-wave-book-149-half.avif
+    size: half
+  - image: ./street-wave-book-150-half.avif
+    size: half
+  - image: ./street-wave-book-151-half.avif
+    size: half
+  - image: ./street-wave-book-152-half.avif
+    size: half
+  - image: ./street-wave-book-153-half.avif
+    size: half
+  - image: ./street-wave-book-154-half.avif
+    size: half
+  - image: ./street-wave-book-155-half.avif
+    size: half
+  - image: ./street-wave-book-156-half.avif
+    size: half
+  - image: ./street-wave-book-157-half.avif
+    size: half
+  - image: ./street-wave-book-158-half.avif
+    size: half
+  - image: ./street-wave-book-159-half.avif
+    size: half
+  - image: ./street-wave-book-160-half.avif
+    size: half
+  - image: ./street-wave-book-161-half.avif
+    size: half
+  - image: ./street-wave-book-162-half.avif
+    size: half
+  - image: ./street-wave-book-163-half.avif
+    size: half
+  - image: ./street-wave-book-164-half.avif
+    size: half
+  - image: ./street-wave-book-165-half.avif
+    size: half
+  - image: ./street-wave-book-166-half.avif
+    size: half
+  - image: ./street-wave-book-167-half.avif
+    size: half
+  - image: ./street-wave-book-168-half.avif
+    size: half
+  - image: ./street-wave-book-169-half.avif
+    size: half
+  - image: ./street-wave-book-170-half.avif
+    size: half
+  - image: ./street-wave-book-171-half.avif
+    size: half
+  - image: ./street-wave-book-172-half.avif
+    size: half
 ---
 
 Задача: Сверстать документальную книгу-исследование про уличное искусство Санкт-Петербурга.

@@ -3,9 +3,9 @@ import type { CollectionEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Gallery from '../components/Gallery.astro';
 import type { Lang } from '../i18n/ui';
-import { useTranslations, localePath } from '../i18n/utils';
+import { useTranslations } from '../i18n/utils';
 import { categoryLabel } from '../data/categories';
-import { localizeProjectEntry, getNextProject, renderLocalized } from '../lib/content';
+import { localizeProjectEntry, projectTextBlocks, textExcerpt } from '../lib/content';
 
 interface Props {
   lang: Lang;
@@ -15,61 +15,75 @@ interface Props {
 const { lang, entry } = Astro.props;
 const t = useTranslations(lang);
 const project = await localizeProjectEntry(entry, lang);
-const next = await getNextProject(entry, lang);
-const { Content } = await renderLocalized(project);
 const { data } = entry;
 
 const meta = [
   { label: t('project.client'), value: project.client },
-  { label: t('project.scope'), value: project.scope },
-  { label: t('project.year'), value: String(data.year) },
+  { label: t('project.year'), value: data.date.slice(0, 4) },
   { label: t('project.category'), value: categoryLabel(data.category, lang) },
 ].filter((m) => m.value);
+
+const [intro = '', ...textBlocks] = projectTextBlocks(project);
+const textSlots = data.gallery.filter((item) => 'text' in item).length;
+if (textSlots !== textBlocks.length) {
+  throw new Error(`${entry.id}, ${lang}: мест для текста в галерее ${textSlots}, блоков текста ${textBlocks.length}`);
+}
+
+// Галерея, разрезанная вставками текста: картинки, текст, картинки
+type Figure = Exclude<(typeof data.gallery)[number], { text: true }>;
+const parts: { figures: Figure[]; text?: string }[] = [{ figures: [] }];
+let nextText = 0;
+for (const item of data.gallery) {
+  if ('text' in item) {
+    parts.at(-1)!.text = textBlocks[nextText++];
+    parts.push({ figures: [] });
+  } else {
+    parts.at(-1)!.figures.push(item);
+  }
+}
 ---
 
-<BaseLayout title={`${project.title} — ${t('site.name')}`} description={project.description} ogImage={data.cover} current={data.category}>
-  <article class="ids__wrapper L">
-    <div class="ids__space L"></div>
-    <p><a class="project-back" href={localePath(lang)}>← {t('nav.allProjects')}</a></p>
-    <div class="ids__space S"></div>
-    <h1 class="S">{project.title}</h1>
-    <dl class="project-meta">
-      {
-        meta.map((m) => (
-          <div>
-            <dt>{m.label}</dt>
-            <dd>{m.value}</dd>
-          </div>
-        ))
-      }
-      {
-        data.link && (
-          <div>
-            <dd>
-              <a href={data.link} target="_blank" rel="noopener">
-                {t('project.link')} ↗
-              </a>
-            </dd>
-          </div>
-        )
-      }
-    </dl>
-    <div class="ids__space M"></div>
-    <div class="ids__text-width project-text">
-      <Content />
+<BaseLayout
+  title={`${project.title} — ${t('site.name')}`}
+  description={project.description ?? textExcerpt(intro)}
+  ogImage={data.cover}
+  current={data.category}
+>
+  <article>
+    <div class="ids__wrapper S">
+      <div class="ids__space L"></div>
+      <dl class="project-meta">
+        {
+          meta.map((m) => (
+            <div>
+              <dt>{m.label}</dt>
+              <dd>{m.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+      <div class="ids__space S"></div>
+      <h1 class="S">{project.title}</h1>
+      <div class="ids__space M"></div>
+      <div class="project-text" set:html={intro} />
+      <div class="ids__space L"></div>
     </div>
-    <div class="ids__space L"></div>
-    {data.galleries.map((figures, i) => <Gallery figures={figures} first={i === 0} />)}
     {
-      next && (
+      parts.map((part, i) => (
         <>
-          <div class="ids__space L"></div>
-          <a class="project-next" href={next.url}>
-            <p>{t('project.next')}</p>
-            <h2 class="XS">{next.title}</h2>
-          </a>
+          {part.figures.length > 0 && (
+            <div class="ids__wrapper XL">
+              <Gallery figures={part.figures} first={i === 0} />
+            </div>
+          )}
+          {part.text && (
+            <div class="ids__wrapper S">
+              <div class="project-text" set:html={part.text} />
+              <div class="ids__space L" />
+            </div>
+          )}
         </>
-      )
+      ))
     }
     <div class="ids__space XL"></div>
   </article>

@@ -16,20 +16,26 @@ const byFolder = (collection: string) =>
     generateId: ({ entry }) => entry.split('/')[0],
   });
 
-/** Элемент галереи: картинка из папки кейса или видео из public/ */
+const figureSize = z.enum(['big', 'half', 'third', 'fourth']);
+
+/**
+ * Элемент галереи: картинка из папки кейса, видео из public/ или место для следующего
+ * блока текста из тела кейса (блоки разделены комментарием <!-- text -->)
+ */
 const figure = ({ image }: SchemaContext) =>
   z.union([
     z.object({
       image: image(),
       alt: z.string().optional(),
-      size: z.enum(['M', 'XL']).default('M'),
+      size: figureSize,
     }),
     z.object({
-      /** Видео лежит в public/video/, адрес вида "/video/commo-1.mp4" */
+      /** Видео лежит в public/video/, адрес вида "/video/commo-4-big.mp4" */
       video: z.string(),
-      poster: image().optional(),
-      size: z.enum(['M', 'XL']).default('M'),
+      poster: image(),
+      size: figureSize,
     }),
+    z.object({ text: z.literal(true) }),
   ]);
 
 const projects = defineCollection({
@@ -39,23 +45,19 @@ const projects = defineCollection({
       title: z.string(),
       /** Ровно одна категория из src/data/categories.ts */
       category: z.enum(categorySlugs),
-      year: z.number().int(),
+      /** ГГГГ-ММ: месяц нужен только для сортировки, на сайте виден год */
+      date: z.string().regex(/^\d{4}(-(0[1-9]|1[0-2]))?$/),
       client: z.string().optional(),
-      /** Что сделано, коротко: «айдентика, упаковка, сайт» */
-      scope: z.string().optional(),
-      /** Ссылка на живой проект */
-      link: z.url().optional(),
-      /** Порядок в списке: меньше — выше. Шаг 10 оставляет место для новых. */
-      order: z.number(),
+      /** Только для кейсов с одинаковой датой: меньше — выше */
+      order: z.number().default(0),
       cover: ctx.image(),
       coverAlt: z.string().optional(),
       /** Показывать на главной */
       featured: z.boolean().default(false),
       /** Убрать с сайта: страница открывается по ссылке, но карточки нет */
       hidden: z.boolean().default(false),
-      /** Группы картинок, между группами большой отступ */
-      galleries: z.array(z.array(figure(ctx))).default([]),
-      /** Для поисковиков и превью ссылок; по умолчанию берётся из текста */
+      gallery: z.array(figure(ctx)).default([]),
+      /** Для поисковиков и превью ссылок; по умолчанию начало текста кейса */
       description: z.string().optional(),
     }),
 });
@@ -91,7 +93,6 @@ const translations = defineCollection({
     title: z.string(),
     listTitle: z.string().optional(),
     client: z.string().optional(),
-    scope: z.string().optional(),
     coverAlt: z.string().optional(),
     description: z.string().optional(),
   }),

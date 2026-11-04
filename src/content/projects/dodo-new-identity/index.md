@@ -1,40 +1,61 @@
 ---
 title: "Ребрендинг Додо Пиццы"
 category: branding
-year: 2023
+date: "2023"
 client: "Додо Пицца"
 order: 40
-cover: ./cover.avif
-galleries:
-  - - image: ./Dodo-new-identity-19.avif
-      size: XL
-    - image: ./Dodo-new-identity-18.avif
-    - image: ./Dodo-new-identity-11.avif
-    - image: ./Dodo-new-identity-13.avif
-    - image: ./Dodo-new-identity-12.avif
-    - image: ./Dodo-new-identity-9.avif
-  - - image: ./Dodo-new-identity-2.avif
-      size: XL
-    - image: ./Dodo-new-identity-10.avif
-    - image: ./Dodo-new-identity-16.avif
-    - image: ./Dodo-new-identity-1.avif
-    - image: ./Dodo-new-identity-7.avif
-    - image: ./Dodo-new-identity-20.avif
-    - image: ./Dodo-new-identity-21.avif
-    - image: ./Dodo-new-identity-23.avif
-  - - image: ./Dodo-new-identity-8.avif
-      size: XL
-    - image: ./Dodo-new-identity-14.avif
-    - image: ./Dodo-new-identity-15.avif
-    - image: ./Dodo-new-identity-17.avif
-    - image: ./Dodo-new-identity-24.avif
-    - image: ./Dodo-new-identity-25.avif
-  - - image: ./Dodo-new-identity-22.avif
-      size: XL
-    - image: ./Dodo-new-identity-3.avif
-    - image: ./Dodo-new-identity-4.avif
-    - image: ./Dodo-new-identity-5.avif
-    - image: ./Dodo-new-identity-6.avif
+cover: ./dodo-new-identity-cover.avif
+gallery:
+  - image: ./dodo-new-identity-1-big.avif
+    size: big
+  - image: ./dodo-new-identity-2-half.avif
+    size: half
+  - image: ./dodo-new-identity-3-half.avif
+    size: half
+  - image: ./dodo-new-identity-4-half.avif
+    size: half
+  - image: ./dodo-new-identity-5-half.avif
+    size: half
+  - image: ./dodo-new-identity-6-half.avif
+    size: half
+  - image: ./dodo-new-identity-7-big.avif
+    size: big
+  - image: ./dodo-new-identity-8-half.avif
+    size: half
+  - image: ./dodo-new-identity-9-half.avif
+    size: half
+  - image: ./dodo-new-identity-10-half.avif
+    size: half
+  - image: ./dodo-new-identity-11-half.avif
+    size: half
+  - image: ./dodo-new-identity-12-half.avif
+    size: half
+  - image: ./dodo-new-identity-13-half.avif
+    size: half
+  - image: ./dodo-new-identity-14-half.avif
+    size: half
+  - image: ./dodo-new-identity-15-big.avif
+    size: big
+  - image: ./dodo-new-identity-16-half.avif
+    size: half
+  - image: ./dodo-new-identity-17-half.avif
+    size: half
+  - image: ./dodo-new-identity-18-half.avif
+    size: half
+  - image: ./dodo-new-identity-19-half.avif
+    size: half
+  - image: ./dodo-new-identity-20-half.avif
+    size: half
+  - image: ./dodo-new-identity-21-big.avif
+    size: big
+  - image: ./dodo-new-identity-22-half.avif
+    size: half
+  - image: ./dodo-new-identity-23-half.avif
+    size: half
+  - image: ./dodo-new-identity-24-half.avif
+    size: half
+  - image: ./dodo-new-identity-25-half.avif
+    size: half
 ---
 
 Задача: Предложить новое видение бренда
