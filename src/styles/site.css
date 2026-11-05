@@ -281,7 +281,7 @@
 
 .project-card__cover {
   position: relative;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 3 / 4;
   display: grid;
   place-items: center;
   color: var(--ids__text-caption);
@@ -365,20 +365,22 @@
   }
 }
 
+/* Отступы над и под названием задают ids__space M, встроенный отступ h1 сделал бы нижний больше */
+.ids .project-title {
+  margin-bottom: 0;
+}
+
 .project-meta {
   display: flex;
   flex-wrap: wrap;
   gap: var(--ids__gap-s) var(--ids__gap-l);
   margin: 0;
   font-size: 0.8em;
+  color: var(--ids__text-caption);
 
   & div {
     display: flex;
     gap: 0.4em;
-  }
-
-  & dt {
-    color: var(--ids__text-caption);
   }
 
   & dd {
@@ -440,7 +442,7 @@
 
 /* Карточка проекта с настоящей обложкой */
 
-/* Картинка не влияет на размер карточки: вертикальная обложка тоже обрезается до 4:3 */
+/* Картинка не влияет на размер карточки: любая обложка обрезается до 3:4 */
 .project-card__cover img {
   position: absolute;
   inset: 0;

@@ -17,7 +17,6 @@ const [projects, articles] = await Promise.all([getProjects(lang), getArticles(l
 
 <BaseLayout>
   <h1 class="visually-hidden">{t('site.title')}</h1>
-  <div class="ids__space L"></div>
   <section class="project-grid-wrap" aria-label={t('projects.heading')}>
     <ProjectGrid lang={lang} id="projects" projects={projects} articles={articles} />
   </section>

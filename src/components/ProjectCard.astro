@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import type { LocalizedProject } from '../lib/content';
 import { coverTone } from '../lib/cover-tone';
+import { COVER_WIDTHS, coverSizes } from '../lib/cover-sizes';
 
 interface Props {
   project: LocalizedProject;
@@ -22,8 +23,8 @@ const tone = await coverTone(entry.data.cover);
     <Image
       src={entry.data.cover}
       alt={project.coverAlt}
-      widths={[400, 800, 1200, 1600]}
-      sizes="(width < 768px) 100vw, 34vw"
+      widths={COVER_WIDTHS}
+      sizes={coverSizes(entry.data.cover)}
       format="avif"
       loading="lazy"
     />

@@ -67,6 +67,8 @@ const alternateEn = new URL(switchLangPath(Astro.url, 'en'), Astro.site);
   <body class="ids">
     <Header current={current} />
     <main>
+      <!-- Единый отступ от шапки на всех страницах, своего отступа сверху у страниц нет -->
+      <div class="ids__space XL"></div>
       <slot />
     </main>
     <Footer />

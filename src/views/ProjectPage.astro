@@ -51,7 +51,6 @@ for (const item of data.gallery) {
 >
   <article>
     <div class="ids__wrapper S">
-      <div class="ids__space L"></div>
       <dl class="project-meta">
         {
           meta.map((m) => (
@@ -62,8 +61,8 @@ for (const item of data.gallery) {
           ))
         }
       </dl>
-      <div class="ids__space S"></div>
-      <h1 class="S">{project.title}</h1>
+      <div class="ids__space M"></div>
+      <h1 class="project-title">{project.title}</h1>
       <div class="ids__space M"></div>
       <div class="project-text" set:html={intro} />
       <div class="ids__space L"></div>
