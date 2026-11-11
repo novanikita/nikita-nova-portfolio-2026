@@ -4,6 +4,7 @@ category: books
 date: "2025"
 client: "Додо Пицца"
 order: 20
+draft: true
 cover: ./dodo-book-cover-cover.avif
 gallery:
   - image: ./dodo-book-cover-1-half.avif

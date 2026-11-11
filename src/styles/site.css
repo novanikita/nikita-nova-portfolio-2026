@@ -253,10 +253,38 @@
   padding-inline: var(--ids__gap-s);
 }
 
-/* На телефоне одна колонка: подпись внутри карточки не помещается в половину экрана */
-.ids .project-grid.ids__sequence .ids__sequence-item {
+/* Четыре блока в ряд: обычная карточка занимает один, карточка M два.
+   Если M не помещается в конец ряда, свободный блок занимает следующая обычная карточка (dense).
+   На телефоне одна колонка: подпись внутри карточки не помещается в половину экрана */
+.project-grid {
+  --columns: 4;
+  --gap: var(--ids__gap-s);
+  /* Ширина одного блока от ширины самой сетки (cqi). По ней карточка M получает высоту соседей */
+  --block: calc((100cqi - var(--gap) * (var(--columns) - 1)) / var(--columns));
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+  grid-auto-flow: dense;
+  gap: var(--gap);
+  margin-bottom: calc(var(--gap) * 1.5);
+
   @media (width < 768px) {
     --columns: 1;
+  }
+}
+
+/* Карточка M: два блока по ширине, высота как у соседей по ряду. На телефоне она как обычная */
+@media (width >= 768px) {
+  .ids .project-card.M {
+    grid-column: span 2;
+    /* Если в ряду нет обычных карточек, высоту ряда держит сама M */
+    min-height: calc(var(--block) * 4 / 3);
+  }
+
+  .project-card.M .project-card__cover {
+    position: absolute;
+    inset: 0;
+    aspect-ratio: auto;
   }
 }
 
@@ -442,7 +470,7 @@
 
 /* Карточка проекта с настоящей обложкой */
 
-/* Картинка не влияет на размер карточки: любая обложка обрезается до 3:4 */
+/* Картинка не влияет на размер карточки: любая обложка обрезается до 3:4, на карточке M примерно до 3:2 */
 .project-card__cover img {
   position: absolute;
   inset: 0;
@@ -501,4 +529,11 @@
 
 .ids .article-body img {
   margin: var(--ids__spacer-m) 0;
+}
+
+/* Видео в статье занимает ширину текста, отступы вокруг задают ids__space в самой статье */
+.ids .article-body video {
+  display: block;
+  width: 100%;
+  height: auto;
 }

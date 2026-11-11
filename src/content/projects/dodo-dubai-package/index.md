@@ -6,6 +6,8 @@ client: "Додо Пицца"
 order: 50
 cover: ./dodo-dubai-package-cover.avif
 gallery:
+  - scene: box-stack
+    size: big
   - image: ./dodo-dubai-package-1-big.avif
     size: big
   - image: ./dodo-dubai-package-2-half.avif

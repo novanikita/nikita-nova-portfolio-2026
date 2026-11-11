@@ -3,6 +3,7 @@ title: "Дроп «Первая буква алфавита» №5"
 category: merch
 date: "2025"
 order: 10
+draft: true
 cover: ./drop-5-cover.avif
 gallery:
   - image: ./drop-5-1-big.avif

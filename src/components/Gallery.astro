@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
+import BoxStack from './scenes/BoxStack.astro';
 
 type Item = CollectionEntry<'projects'>['data']['gallery'][number];
 type Figure = Exclude<Item, { text: true }>;
@@ -22,11 +23,26 @@ const sizes: Record<Size, { span: number; widths: number[]; sizes: string }> = {
   fourth: { span: 3, widths: [400, 800, 1400], sizes: '(width < 768px) 100vw, 25vw' },
 };
 
-const source = (f: Figure) => ('image' in f ? f.image : f.poster);
+/** Живые сцены: у каждой свой компонент и своя высота. В расчёте рядов сцена считается как 16:9 */
+const scenes = { 'box-stack': BoxStack };
+const sceneRatio = 9 / 16;
+
 const fileName = (f: Figure) =>
-  'image' in f ? (f.image as ImageMetadata & { fsPath?: string }).fsPath?.split('/').pop() ?? f.image.src : f.video;
+  'scene' in f
+    ? `сцена ${f.scene}`
+    : 'image' in f
+      ? (f.image as ImageMetadata & { fsPath?: string }).fsPath?.split('/').pop() ?? f.image.src
+      : f.video;
+/** Высота к ширине: у картинки и постера — из файла, у сцены — общая */
+const ratio = (f: Figure) => {
+  if ('scene' in f) return sceneRatio;
+  const { width, height } = 'image' in f ? f.image : f.poster;
+  return height / width;
+};
 /** Высота картинки в ряду при её доле ширины */
-const rowHeight = (f: Figure) => (sizes[f.size].span * source(f).height) / source(f).width;
+const rowHeight = (f: Figure) => sizes[f.size].span * ratio(f);
+/** Первая картинка первой галереи грузится сразу, остальные лениво */
+const eager = first ? figures.find((f) => 'image' in f) : undefined;
 
 // Складываем картинки в ряды по 12 частей, как это сделает сетка
 const rows: Figure[][] = [];
@@ -61,8 +77,16 @@ const withBase = (path: string) =>
 
 <div class="gallery">
   {
-    figures.map((f, i) =>
-      'image' in f ? (
+    figures.map((f) => {
+      if ('scene' in f) {
+        const Scene = scenes[f.scene];
+        return (
+          <figure class={f.size}>
+            <Scene />
+          </figure>
+        );
+      }
+      return 'image' in f ? (
         <figure class:list={[f.size, { 'is-cropped': cropped.has(f) }]}>
           <Image
             src={f.image}
@@ -70,7 +94,7 @@ const withBase = (path: string) =>
             widths={sizes[f.size].widths}
             sizes={sizes[f.size].sizes}
             format="avif"
-            loading={first && i === 0 ? 'eager' : 'lazy'}
+            loading={f === eager ? 'eager' : 'lazy'}
           />
         </figure>
       ) : (
@@ -86,8 +110,8 @@ const withBase = (path: string) =>
             preload="none"
           />
         </figure>
-      ),
-    )
+      );
+    })
   }
 </div>
 

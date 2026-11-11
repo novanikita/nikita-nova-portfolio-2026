@@ -1,0 +1,700 @@
+---
+/**
+ * Служебная страница: подобрать сид для обложки статьи и настройки самого генератора.
+ * Слева карточка в том же виде и размере, что на главной, поле сида и обложки-примеры,
+ * справа настройки. Настройки меняют только эту страницу и хранятся в браузере.
+ * Чтобы применить их к сайту, их содержимое кладут в src/data/cover-settings.json.
+ * Сид хранится в адресе (?seed=…), поэтому найденный вариант можно сохранить ссылкой.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import GeneratedCover from '../components/GeneratedCover.astro';
+import type { Lang } from '../i18n/ui';
+import { useTranslations } from '../i18n/utils';
+import { getArticles } from '../lib/content';
+import { buildCover, savedSettings } from '../lib/generated-cover';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const text = {
+  ru: {
+    heading: 'Генератор обложек',
+    seed: 'Сид',
+    seedDefault: 'Название статьи',
+    hint: 'По умолчанию сид статьи — её название. Чтобы закрепить за статьёй другой вариант, добавьте в её index.md строку:',
+    samples: 'Примеры. Нажмите на обложку, чтобы взять её сид',
+    settings: 'Настройки',
+    note: 'Настройки меняют только эту страницу. Чтобы применить их ко всему сайту, скопируйте их и вставьте в файл src/data/cover-settings.json вместо его содержимого.',
+    changed: 'Настройки изменены и хранятся только в этом браузере. На сайте пока прежние.',
+    copy: 'Скопировать настройки',
+    copied: 'Скопировано',
+    reset: 'Сбросить',
+    show: 'Показать текстом',
+    from: 'от',
+    to: 'до',
+    add: 'Добавить цвет',
+    remove: 'Убрать цвет',
+    palette: 'Тёмные цвета идут в фон, светлые в блики, остальные в полосы. Генератор делит их сам, по яркости.',
+  },
+  en: {
+    heading: 'Cover generator',
+    seed: 'Seed',
+    seedDefault: 'Article title',
+    hint: 'By default an article’s seed is its title. To pin a different variant to an article, add this line to its index.md:',
+    samples: 'Samples. Click a cover to take its seed',
+    settings: 'Settings',
+    note: 'Settings change this page only. To apply them to the whole site, copy them and paste into src/data/cover-settings.json, replacing its contents.',
+    changed: 'Settings are changed and stored in this browser only. The site still uses the previous ones.',
+    copy: 'Copy settings',
+    copied: 'Copied',
+    reset: 'Reset',
+    show: 'Show as text',
+    from: 'from',
+    to: 'to',
+    add: 'Add a colour',
+    remove: 'Remove the colour',
+    palette: 'Dark colours become backgrounds, light ones become glints, the rest become bands. The generator sorts them itself, by lightness.',
+  },
+}[lang];
+
+/** Ползунок: путь к значению в настройках и его границы */
+interface Knob {
+  path: string;
+  min: number;
+  max: number;
+  step: number;
+}
+/** Строка настроек: один ползунок или пара «от — до» */
+interface Row {
+  label: Record<Lang, string>;
+  knobs: Knob[];
+}
+const one = (path: string, ru: string, en: string, min: number, max: number, step: number): Row => ({
+  label: { ru, en },
+  knobs: [{ path, min, max, step }],
+});
+/** Пара «от — до»: у каждого конца свои границы, чтобы тонкие значения было удобно ловить */
+const pair = (path: string, ru: string, en: string, from: number[], to: number[]): Row => ({
+  label: { ru, en },
+  knobs: [
+    { path: `${path}.0`, min: from[0], max: from[1], step: from[2] },
+    { path: `${path}.1`, min: to[0], max: to[1], step: to[2] },
+  ],
+});
+
+const groups: { id: string; title: Record<Lang, string>; rows: Row[] }[] = [
+  {
+    id: 'colors',
+    title: { ru: 'Цвета', en: 'Colours' },
+    rows: [
+      pair('colors', 'Ярких цветов на обложке', 'Bright colours per cover', [1, 6, 1], [1, 6, 1]),
+      one('darkBase', 'Доля обложек с тёмным фоном', 'Share of covers with a dark background', 0, 1, 0.05),
+    ],
+  },
+  {
+    id: 'bands',
+    title: { ru: 'Полосы', en: 'Bands' },
+    rows: [
+      pair('band', 'Высота полосы, % высоты обложки', 'Band height, % of cover height', [0, 5, 0.05], [1, 60, 1]),
+      pair('fade', 'Переход между цветами, % высоты обложки', 'Fade between colours, % of cover height', [0, 10, 0.1], [0, 40, 0.5]),
+      pair('parts', 'Частей на обложке', 'Parts per cover', [1, 14, 1], [1, 14, 1]),
+      pair('lines', 'Линий в одной пачке', 'Lines in one bundle', [1, 20, 1], [1, 20, 1]),
+      one('calm', 'Как часто между частями возвращается фон', 'How often the background returns between parts', 0, 1, 0.05),
+    ],
+  },
+  {
+    id: 'mix',
+    title: { ru: 'Состав: как часто встречается, 0 — никогда', en: 'Mix: how often it appears, 0 is never' },
+    rows: [
+      one('mix.stripes', 'Пачки тонких линий', 'Bundles of thin lines', 0, 6, 1),
+      one('mix.glow', 'Светящиеся линии', 'Glowing lines', 0, 6, 1),
+      one('mix.dusk', 'Длинные переливы', 'Long gradients', 0, 6, 1),
+      one('mix.block', 'Плотные полосы с резким краем', 'Solid bands with hard edges', 0, 6, 1),
+      one('mix.field', 'Спокойные поля', 'Calm fields', 0, 6, 1),
+    ],
+  },
+  {
+    id: 'motion',
+    title: { ru: 'Движение при наведении', en: 'Motion on hover' },
+    rows: [
+      one('motion.lens', 'Насколько сильно ездят полосы', 'How far the bands travel', 0, 2, 0.05),
+      one('motion.lensPeriod', 'Волна движения проходит обложку, сек', 'Motion wave crosses the cover, s', 1, 15, 0.5),
+      one('motion.lensCount', 'Волн движения на обложке', 'Motion waves per cover', 0.2, 3, 0.1),
+      one('motion.sway', 'Собственное дыхание полос', 'Bands’ own breathing', 0, 1.5, 0.05),
+      one('motion.tint', 'Насколько сильно меняются цвета', 'How much the colours change', 0, 1, 0.05),
+      one('motion.tintPeriod', 'Волна цвета проходит обложку, сек', 'Colour wave crosses the cover, s', 1, 15, 0.5),
+      one('motion.rise', 'Разгон: меньше — быстрее', 'Start-up: lower is faster', 0.05, 2, 0.05),
+      one('motion.fall', 'Возврат: меньше — быстрее', 'Return: lower is faster', 0.02, 1, 0.02),
+    ],
+  },
+];
+
+/** Значение из настроек по пути вида «motion.lens» или «band.0» */
+const read = (path: string) =>
+  path.split('.').reduce<unknown>((value, key) => (value as Record<string, unknown>)[key], savedSettings) as number;
+
+// Примеры: обложки настоящих статей, а если их мало — добор до дюжины простыми сидами
+const articles = await getArticles(lang);
+const samples = articles
+  .filter((a) => !a.entry.data.cover)
+  .map((a) => ({ seed: a.entry.data.coverSeed ?? a.entry.data.title, label: a.listTitle }));
+for (let i = 1; samples.length < 12; i++) samples.push({ seed: String(i), label: String(i) });
+
+const seed = text.seedDefault;
+---
+
+<BaseLayout title={`${text.heading} — ${t('site.name')}`} noindex>
+  <div class="cover-generator" data-cover-generator data-copied={text.copied} data-remove={text.remove}>
+    <div class="cover-generator__main">
+      <h1 class="S">{text.heading}</h1>
+      <div class="ids__space M"></div>
+      <div class="cover-generator__top">
+        <div class="project-card cover-generator__card" data-cover-card style={`--tone: ${buildCover(seed).tone}`}>
+          <div class="project-card__cover">
+            <GeneratedCover seed={seed} />
+          </div>
+          <div class="project-card__caption">
+            <h3 class="project-card__title" data-cover-title>{seed}</h3>
+          </div>
+        </div>
+        <div class="cover-generator__form">
+          <label class="cover-generator__label" for="cover-seed">{text.seed}</label>
+          <input id="cover-seed" type="text" value={seed} autocomplete="off" spellcheck="false" />
+          <p class="cover-generator__hint">{text.hint}</p>
+          <p><code data-cover-line>coverSeed: "{seed}"</code></p>
+        </div>
+      </div>
+      <div class="ids__space M"></div>
+      <p class="cover-generator__hint">{text.samples}</p>
+      <div class="cover-samples">
+        {
+          samples.map((sample) => (
+            <button type="button" class="cover-sample" data-seed={sample.seed}>
+              <span class="cover-sample__cover">
+                <GeneratedCover seed={sample.seed} />
+              </span>
+              <span class="cover-sample__label">{sample.label}</span>
+            </button>
+          ))
+        }
+      </div>
+    </div>
+
+    <form class="cover-settings" data-cover-settings-form>
+      <h2 class="XS">{text.settings}</h2>
+      <p class="cover-generator__hint">{text.note}</p>
+      <p class="cover-settings__status" data-status hidden>{text.changed}</p>
+      <div class="cover-settings__actions">
+        <button type="button" data-copy>{text.copy}</button>
+        <button type="button" data-reset>{text.reset}</button>
+      </div>
+      <details>
+        <summary>{text.show}</summary>
+        <textarea data-json readonly rows="12" spellcheck="false"></textarea>
+      </details>
+
+      {
+        groups.map((group) => (
+          <fieldset>
+            <legend>{group.title[lang]}</legend>
+            {group.id === 'colors' && (
+              <>
+                <div class="cover-palette" data-palette />
+                <button type="button" data-add>
+                  {text.add}
+                </button>
+                <p class="cover-generator__hint">{text.palette}</p>
+              </>
+            )}
+            {group.rows.map((row) => (
+              <div class="cover-knob">
+                <span class="cover-knob__label">{row.label[lang]}</span>
+                {row.knobs.map((knob, i) => (
+                  <label class="cover-knob__row">
+                    {row.knobs.length > 1 && <span class="cover-knob__tag">{i ? text.to : text.from}</span>}
+                    <input
+                      type="range"
+                      data-path={knob.path}
+                      min={knob.min}
+                      max={knob.max}
+                      step={knob.step}
+                      value={read(knob.path)}
+                      aria-label={`${row.label[lang]}${row.knobs.length > 1 ? `, ${i ? text.to : text.from}` : ''}`}
+                    />
+                    <output>{read(knob.path)}</output>
+                  </label>
+                ))}
+              </div>
+            ))}
+          </fieldset>
+        ))
+      }
+    </form>
+  </div>
+  <div class="ids__space XL"></div>
+</BaseLayout>
+
+<script>
+  import { buildCover, coverStops, normalizeSeed, savedSettings, type CoverSettings } from '../lib/generated-cover';
+
+  type Json = Record<string, unknown>;
+  const STORE = 'cover-generator-settings';
+  const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value));
+
+  /** Сохранённое в браузере накладывается на настройки сайта: лишние и испорченные поля отбрасываются */
+  function merge(base: unknown, extra: unknown): unknown {
+    if (Array.isArray(base)) {
+      const fits =
+        Array.isArray(extra) && extra.length > 0 && extra.every((v) => typeof v === typeof base[0]) &&
+        (typeof base[0] === 'string' || extra.length === base.length);
+      return fits ? extra : base;
+    }
+    if (base && typeof base === 'object') {
+      const out: Json = {};
+      for (const [key, value] of Object.entries(base)) out[key] = merge(value, (extra as Json | undefined)?.[key]);
+      return out;
+    }
+    return typeof extra === typeof base ? extra : base;
+  }
+
+  function load(): CoverSettings {
+    try {
+      const stored = localStorage.getItem(STORE);
+      if (stored) return merge(clone(savedSettings), JSON.parse(stored)) as CoverSettings;
+    } catch {
+      // Хранилище недоступно или в нём мусор: работаем с настройками сайта
+    }
+    return clone(savedSettings);
+  }
+
+  const root = document.querySelector<HTMLElement>('[data-cover-generator]');
+  if (root) {
+    const $ = <T extends HTMLElement>(selector: string) => root.querySelector<T>(selector)!;
+    const seedInput = $<HTMLInputElement>('#cover-seed');
+    const card = $('[data-cover-card]');
+    const mainCover = card.querySelector<HTMLElement>('.generated-cover')!;
+    const title = $('[data-cover-title]');
+    const line = $('[data-cover-line]');
+    const status = $('[data-status]');
+    const json = $<HTMLTextAreaElement>('[data-json]');
+    const palette = $('[data-palette]');
+    const copy = $<HTMLButtonElement>('[data-copy]');
+    const knobs = [...root.querySelectorAll<HTMLInputElement>('input[data-path]')];
+    const covers = [...root.querySelectorAll<HTMLElement>('.generated-cover')];
+
+    let settings = load();
+
+    const get = (path: string) => path.split('.').reduce<any>((value, key) => value[key], settings) as number;
+    const set = (path: string, value: number) => {
+      const keys = path.split('.');
+      const last = keys.pop()!;
+      keys.reduce<any>((target, key) => target[key], settings)[last] = value;
+    };
+
+    /** Перерисовать всё по текущим настройкам и сиду */
+    const render = () => {
+      const raw = JSON.stringify(settings);
+      const seed = normalizeSeed(seedInput.value);
+      mainCover.dataset.coverSeed = seed;
+      for (const cover of covers) {
+        // Если обложка сейчас движется, её скрипт сам подхватит новое на следующем кадре
+        cover.dataset.coverSettings = raw;
+        cover.style.setProperty('--stops', coverStops(buildCover(cover.dataset.coverSeed ?? '', settings)));
+      }
+      card.style.setProperty('--tone', buildCover(seed, settings).tone);
+      title.textContent = seed;
+      line.textContent = `coverSeed: ${JSON.stringify(seed)}`;
+
+      const changed = raw !== JSON.stringify(savedSettings);
+      status.hidden = !changed;
+      json.value = `${JSON.stringify(settings, null, 2)}\n`;
+      try {
+        if (changed) localStorage.setItem(STORE, raw);
+        else localStorage.removeItem(STORE);
+      } catch {
+        // Без хранилища настройки просто не переживут перезагрузку
+      }
+    };
+
+    /** Ползунки и подписи к ним — по текущим настройкам */
+    const syncKnobs = () => {
+      for (const knob of knobs) {
+        const value = get(knob.dataset.path!);
+        knob.value = String(value);
+        knob.parentElement!.querySelector('output')!.textContent = String(value);
+      }
+    };
+
+    const syncPalette = () => {
+      palette.replaceChildren(
+        ...settings.palette.map((color, i) => {
+          const swatch = document.createElement('span');
+          swatch.className = 'cover-swatch';
+          const input = document.createElement('input');
+          input.type = 'color';
+          input.value = color;
+          input.addEventListener('input', () => {
+            settings.palette[i] = input.value;
+            render();
+          });
+          const remove = document.createElement('button');
+          remove.type = 'button';
+          remove.textContent = '×';
+          remove.setAttribute('aria-label', `${root.dataset.remove} ${color}`);
+          remove.disabled = settings.palette.length <= 2;
+          remove.addEventListener('click', () => {
+            settings.palette.splice(i, 1);
+            syncPalette();
+            render();
+          });
+          swatch.append(input, remove);
+          return swatch;
+        }),
+      );
+    };
+
+    for (const knob of knobs) {
+      knob.addEventListener('input', () => {
+        const path = knob.dataset.path!;
+        const value = Number(knob.value);
+        set(path, value);
+        // В паре «от — до» концы не перескакивают друг через друга: второй подтягивается следом
+        const [name, end] = path.split(/\.(?=[01]$)/);
+        if (end === '0' && get(`${name}.1`) < value) set(`${name}.1`, value);
+        if (end === '1' && get(`${name}.0`) > value) set(`${name}.0`, value);
+        syncKnobs();
+        render();
+      });
+    }
+
+    $('[data-add]').addEventListener('click', () => {
+      settings.palette.push('#888888');
+      syncPalette();
+      render();
+    });
+
+    $('[data-reset]').addEventListener('click', () => {
+      settings = clone(savedSettings);
+      syncKnobs();
+      syncPalette();
+      render();
+    });
+
+    copy.addEventListener('click', async () => {
+      const label = copy.textContent;
+      try {
+        await navigator.clipboard.writeText(json.value);
+        copy.textContent = root.dataset.copied ?? '';
+        setTimeout(() => (copy.textContent = label), 1500);
+      } catch {
+        // Буфер обмена закрыт: показываем текст, его можно скопировать руками
+        json.closest('details')!.open = true;
+        json.select();
+      }
+    });
+
+    const setSeed = (value: string) => {
+      seedInput.value = value;
+      const url = new URL(location.href);
+      url.searchParams.set('seed', value);
+      history.replaceState(null, '', url);
+      render();
+    };
+    seedInput.addEventListener('input', () => setSeed(seedInput.value));
+    for (const sample of root.querySelectorAll<HTMLElement>('[data-seed]')) {
+      sample.addEventListener('click', () => setSeed(sample.dataset.seed ?? ''));
+    }
+
+    const fromUrl = new URLSearchParams(location.search).get('seed');
+    if (fromUrl !== null) seedInput.value = fromUrl;
+    syncKnobs();
+    syncPalette();
+    render();
+  }
+</script>
+
+<style>
+  /* Слева предпросмотр, справа настройки. Настройки стоят на месте, пока листаются примеры */
+  .cover-generator {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 22rem;
+    align-items: start;
+    gap: var(--ids__spacer-l);
+    padding-inline: calc(var(--ids__density) * 1rem);
+
+    @media (width < 1000px) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .cover-generator__top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--ids__gap-l);
+  }
+
+  /* Карточка той же ширины, что в сетке на главной: четверть экрана, на телефоне вся ширина */
+  .cover-generator__card {
+    flex: none;
+    width: calc((100vw - var(--ids__gap-s) * 5) / 4);
+
+    @media (width < 768px) {
+      width: 100%;
+    }
+  }
+
+  .cover-generator__form {
+    flex: 1;
+    min-width: 14em;
+  }
+
+  .cover-generator__label {
+    display: block;
+    margin-bottom: 0.4em;
+    color: var(--ids__text-caption);
+    font-size: 0.8em;
+  }
+
+  .cover-generator input[type='text'],
+  .cover-settings textarea {
+    display: block;
+    width: 100%;
+    padding: 0.5em 0.65em;
+    font: inherit;
+    color: var(--ids__text);
+    background: var(--ids__background);
+    border: var(--ids__border-width-s) solid var(--ids__border);
+    border-radius: 0.5rem;
+  }
+
+  .cover-generator input[type='text'] {
+    margin-bottom: var(--ids__spacer-m);
+  }
+
+  .cover-generator :is(input, textarea, button, summary):focus-visible {
+    outline: var(--ids__border-width-m) solid var(--ids__text);
+    outline-offset: 1px;
+  }
+
+  .cover-generator__hint {
+    color: var(--ids__text-caption);
+    font-size: 0.8em;
+  }
+
+  /* Примеры */
+
+  .cover-samples {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+    gap: var(--ids__gap-m) var(--ids__gap-s);
+  }
+
+  .cover-sample {
+    appearance: none;
+    display: block;
+    min-width: 0;
+    padding: 0;
+    border: none;
+    background: none;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .cover-sample__cover {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    aspect-ratio: 3 / 4;
+    border-radius: 0.5rem;
+  }
+
+  .cover-sample__label {
+    display: block;
+    overflow: hidden;
+    margin-top: 0.3em;
+    color: var(--ids__text-caption);
+    font-size: 0.8em;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  /* Настройки */
+
+  .cover-settings {
+    position: sticky;
+    top: 1rem;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+    padding: var(--ids__gap-m);
+    border-radius: 0.5rem;
+    background: var(--ids__surface);
+    font-size: 0.8em;
+
+    @media (width < 1000px) {
+      position: static;
+      max-height: none;
+    }
+
+    & .cover-generator__hint {
+      font-size: 1em;
+    }
+
+    & fieldset {
+      margin: var(--ids__spacer-m) 0 0;
+      padding: 0;
+      border: none;
+    }
+
+    & legend {
+      margin-bottom: 0.6em;
+      padding: 0;
+      font-size: 1.25em;
+    }
+
+    & details {
+      margin-top: var(--ids__gap-s);
+    }
+
+    & summary {
+      color: var(--ids__text-caption);
+      cursor: pointer;
+    }
+
+    & textarea {
+      margin-top: var(--ids__gap-s);
+      font-family: ui-monospace, monospace;
+      font-size: 0.85em;
+      resize: vertical;
+    }
+  }
+
+  .cover-settings__status {
+    color: var(--ids__accent);
+  }
+
+  .cover-settings__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ids__gap-s);
+  }
+
+  .cover-settings button {
+    appearance: none;
+    padding: 0.45em 0.8em;
+    border: var(--ids__border-width-s) solid var(--ids__border);
+    border-radius: 0.5rem;
+    background: var(--ids__background);
+    font: inherit;
+    color: var(--ids__text);
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--ids__text);
+    }
+  }
+
+  /* Строка настройки: подпись, под ней ползунок и его значение */
+  .cover-knob {
+    margin-bottom: 0.9em;
+  }
+
+  .cover-knob__label {
+    display: block;
+    margin-bottom: 0.2em;
+  }
+
+  .cover-knob__row {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+
+    & input {
+      flex: 1;
+      min-width: 0;
+      accent-color: var(--ids__text);
+    }
+
+    & output {
+      flex: none;
+      width: 2.6em;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  .cover-knob__tag {
+    flex: none;
+    width: 1.4em;
+    color: var(--ids__text-caption);
+  }
+
+  /* Палитра: квадратики цвета, крестик убирает цвет. Создаются скриптом, поэтому стили общие */
+  .cover-palette {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+    margin-bottom: 0.7em;
+  }
+
+  .cover-palette :global(.cover-swatch) {
+    position: relative;
+    display: block;
+  }
+
+  .cover-palette :global(input[type='color']) {
+    appearance: none;
+    display: block;
+    width: 2.4em;
+    height: 2.4em;
+    padding: 0;
+    border: var(--ids__border-width-s) solid var(--ids__border);
+    border-radius: 0.4em;
+    background: none;
+    cursor: pointer;
+  }
+
+  .cover-palette :global(input[type='color']::-webkit-color-swatch-wrapper) {
+    padding: 0;
+  }
+
+  .cover-palette :global(input[type='color']::-webkit-color-swatch) {
+    border: none;
+    border-radius: 0.35em;
+  }
+
+  .cover-palette :global(input[type='color']::-moz-color-swatch) {
+    border: none;
+    border-radius: 0.35em;
+  }
+
+  .cover-palette :global(.cover-swatch button) {
+    appearance: none;
+    position: absolute;
+    top: -0.45em;
+    right: -0.45em;
+    display: none;
+    place-items: center;
+    width: 1.3em;
+    height: 1.3em;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: var(--ids__text);
+    color: var(--ids__background);
+    font: inherit;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .cover-palette :global(.cover-swatch:hover button:not(:disabled)),
+  .cover-palette :global(.cover-swatch button:focus-visible) {
+    display: grid;
+  }
+</style>

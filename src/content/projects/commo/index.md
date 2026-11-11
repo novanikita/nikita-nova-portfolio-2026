@@ -4,6 +4,8 @@ category: packaging
 date: "2025"
 client: "Commo"
 order: 30
+draft: true
+card: M
 cover: ./commo-cover.avif
 gallery:
   - image: ./commo-1-big.avif

@@ -18,14 +18,14 @@ const { lang, id, projects, articles = [] } = Astro.props;
 const t = useTranslations(lang);
 ---
 
-<div class="ids__sequence L gap-S project-grid" id={id}>
+<div class="project-grid" id={id}>
   {projects.map((p) => <ProjectCard project={p} />)}
   {articles.map((a) => <ArticleCard article={a} />)}
   {
     /* Пока настоящих проектов нет — заглушки, чтобы было видно сетку и фильтр */
     projects.length === 0 &&
       placeholderProjects.map((p) => (
-        <a class="ids__sequence-item project-card" href={localePath(lang, 'projects')} data-category={p.category}>
+        <a class="project-card" href={localePath(lang, 'projects')} data-category={p.category}>
           <div class="project-card__cover" aria-hidden="true">
             {p.number}
           </div>

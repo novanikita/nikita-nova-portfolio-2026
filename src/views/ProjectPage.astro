@@ -23,6 +23,11 @@ const meta = [
   { label: t('project.category'), value: categoryLabel(data.category, lang) },
 ].filter((m) => m.value);
 
+// Картинка превью ссылки — первая картинка галереи (у видео его постер), без галереи — обложка.
+// Живые сцены пропускаем: у них нет файла картинки
+const firstFigure = data.gallery.find((item) => 'image' in item || 'poster' in item);
+const ogImage = firstFigure ? ('image' in firstFigure ? firstFigure.image : firstFigure.poster) : data.cover;
+
 const [intro = '', ...textBlocks] = projectTextBlocks(project);
 const textSlots = data.gallery.filter((item) => 'text' in item).length;
 if (textSlots !== textBlocks.length) {
@@ -45,8 +50,9 @@ for (const item of data.gallery) {
 
 <BaseLayout
   title={`${project.title} — ${t('site.name')}`}
+  ogTitle={project.title}
   description={project.description ?? textExcerpt(intro)}
-  ogImage={data.cover}
+  ogImage={ogImage}
   current={data.category}
 >
   <article>

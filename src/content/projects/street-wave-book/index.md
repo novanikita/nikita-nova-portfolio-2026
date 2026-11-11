@@ -3,6 +3,7 @@ title: "Книга «Уличная волна»"
 category: books
 date: "2022"
 order: 60
+draft: true
 cover: ./street-wave-book-cover.avif
 gallery:
   - image: ./street-wave-book-1-big.avif

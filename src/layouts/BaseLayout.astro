@@ -15,28 +15,37 @@ import { getLangFromUrl, useTranslations, switchLangPath } from '../i18n/utils';
 
 interface Props {
   title?: string;
+  /** Заголовок превью ссылки, если должен отличаться от <title> */
+  ogTitle?: string;
   description?: string;
   /** Картинка для превью ссылки; без неё превью будет без картинки */
   ogImage?: ImageMetadata;
   ogType?: 'website' | 'article';
   /** Что выбрано в плашке шапки, см. Header */
   current?: string;
+  /** Служебная страница: закрыта от поисковиков */
+  noindex?: boolean;
 }
 
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
 const {
   title = t('site.title'),
+  ogTitle = title,
   description = t('site.description'),
   ogImage,
   ogType = 'website',
   current,
+  noindex = false,
 } = Astro.props;
 
 // Предпросмотр на GitHub Pages не должен индексироваться вместо боевого домена
 const isPreview = import.meta.env.PUBLIC_PREVIEW === 'true';
 
-const og = ogImage ? await getImage({ src: ogImage, width: 1200, format: 'jpg' }) : undefined;
+// Превью ссылки — горизонтальная рамка 1200×630: картинка обрезается по центру под неё
+const og = ogImage
+  ? await getImage({ src: ogImage, width: 1200, height: 630, fit: 'cover', position: 'center', format: 'jpg' })
+  : undefined;
 const ogUrl = og ? new URL(og.src, Astro.site) : undefined;
 
 const canonical = new URL(Astro.url.pathname, Astro.site);
@@ -51,17 +60,20 @@ const alternateEn = new URL(switchLangPath(Astro.url, 'en'), Astro.site);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    {isPreview && <meta name="robots" content="noindex, nofollow" />}
+    {(isPreview || noindex) && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonical} />
     <link rel="alternate" hreflang="ru" href={alternateRu} />
     <link rel="alternate" hreflang="en" href={alternateEn} />
     <link rel="alternate" hreflang="x-default" href={alternateRu} />
     <meta property="og:type" content={ogType} />
-    <meta property="og:title" content={title} />
+    <meta property="og:site_name" content={t('site.name')} />
+    <meta property="og:title" content={ogTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:locale" content={lang === 'ru' ? 'ru_RU' : 'en_US'} />
     {ogUrl && <meta property="og:image" content={ogUrl} />}
+    {og && <meta property="og:image:width" content={String(og.attributes.width ?? 1200)} />}
+    {og && <meta property="og:image:height" content={String(og.attributes.height ?? 630)} />}
     <meta name="twitter:card" content={ogUrl ? 'summary_large_image' : 'summary'} />
   </head>
   <body class="ids">

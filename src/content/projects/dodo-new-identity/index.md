@@ -4,6 +4,7 @@ category: branding
 date: "2023"
 client: "Додо Пицца"
 order: 40
+draft: true
 cover: ./dodo-new-identity-cover.avif
 gallery:
   - image: ./dodo-new-identity-1-big.avif

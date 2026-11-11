@@ -3,6 +3,7 @@ title: "Книга «Сторителлинг ненецкой малицы»"
 category: books
 date: "2021"
 order: 70
+draft: true
 cover: ./malica-cover.avif
 gallery:
   - image: ./malica-1-big.avif

@@ -1,0 +1,47 @@
+{
+  "palette": [
+    "#07080d",
+    "#0f1a36",
+    "#12392f",
+    "#3a1848",
+    "#560f14",
+    "#1d3f9e",
+    "#0e6f73",
+    "#2f8fdc",
+    "#35d0c8",
+    "#8fc8f2",
+    "#9a86d8",
+    "#8c8a4a",
+    "#e0261d",
+    "#ff6a1a",
+    "#ffa424",
+    "#f4a6a0",
+    "#ffe08a",
+    "#fff4e2",
+    "#ffffff"
+  ],
+  "colors": [2, 4],
+  "darkBase": 0.8,
+  "parts": [5, 9],
+  "band": [0.05, 25],
+  "fade": [0, 20],
+  "lines": [4, 11],
+  "calm": 0.7,
+  "mix": {
+    "stripes": 3,
+    "glow": 3,
+    "dusk": 2,
+    "block": 1,
+    "field": 1
+  },
+  "motion": {
+    "lens": 1,
+    "lensPeriod": 5,
+    "lensCount": 0.8,
+    "sway": 0.35,
+    "tint": 0.85,
+    "tintPeriod": 3.7,
+    "rise": 0.5,
+    "fall": 0.1
+  }
+}

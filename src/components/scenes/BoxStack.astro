@@ -1,0 +1,377 @@
+---
+/**
+ * Сцена «стопка коробок»: три коробки собраны из плоских граней на CSS 3D и съезжаются по скроллу.
+ * В начале коробки висят с зазорами и повёрнуты, по мере скролла доворачиваются и сближаются,
+ * в конце падают друг на друга. Фона нет, стопка занимает 80% ширины окна.
+ *
+ * Текстуры граней сняты с изометрической картинки кейса (dodo-dubai-package-4-half) скриптом
+ * scripts/box-stack-textures.mjs и лежат в ./box-stack/. Для телефонов сборка делает их вдвое меньше.
+ * Проекция та же, что на картинках: без перспективы, наклон камеры 59,23°, поворот 45°.
+ * Без скриптов и при «уменьшить движение» остаётся собранная стопка.
+ */
+import lid from './box-stack/lid.avif';
+import side from './box-stack/side.avif';
+import front from './box-stack/front.avif';
+import cut from './box-stack/cut.avif';
+import { getImage } from 'astro:assets';
+import { getLangFromUrl } from '../../i18n/utils';
+
+const lang = getLangFromUrl(Astro.url);
+const label = lang === 'en' ? 'A stack of Dodo Pizza boxes' : 'Стопка коробок Додо Пиццы';
+
+/** Высота коробки в долях её ширины. То же число стоит в стилях (--h) и в скрипте */
+const H = 0.1967;
+/** Углы коробок в собранной стопке, снизу вверх: лежат чуть вразнобой */
+const rest = [0, 4, -3];
+
+// Каждая текстура в двух размерах: полная (-l) для больших экранов и половинная (-s) для телефонов.
+// Какую грузить, решают стили; вторая не скачивается
+const faces = { lid, side, front, cut };
+const textures = (
+  await Promise.all(
+    Object.entries(faces).map(async ([name, image]) => {
+      const small = await getImage({ src: image, width: Math.round(image.width / 2), format: 'avif', quality: 60 });
+      return `--${name}-l:url(${image.src});--${name}-s:url(${small.src})`;
+    }),
+  )
+).join(';');
+---
+
+<div class="box-stack" data-box-stack style={textures}>
+  <div class="box-stack__stage" role="img" aria-label={label}>
+    {
+      rest.map((angle, i) => (
+        <div class="box-stack__box" data-box style={`--rz:${angle}deg;--z:${(i * H).toFixed(4)}`}>
+          <i class="wall wall--left" />
+          <i class="wall wall--back" />
+          <i class="wall wall--cut-far" />
+          <i class="wall wall--side" />
+          <i class="wall wall--cut" />
+          <i class="wall wall--front" />
+          <i class="lid">{i < rest.length - 1 && <i class="shade" />}</i>
+        </div>
+      ))
+    }
+  </div>
+  <!-- Запас скролла: пока он прокручивается, сцена стоит на экране и коробки съезжаются -->
+  <div class="box-stack__run"></div>
+</div>
+
+<script is:inline>
+  // Скрипт стоит сразу за разметкой, чтобы запас скролла появился до первой отрисовки и страница не прыгала.
+  // До первого кадра анимации стопку не показываем, чтобы она не прыгала из собранной в разобранную
+  for (const el of document.querySelectorAll('[data-box-stack]:not(.is-live)')) {
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) el.classList.add('is-live', 'is-pending');
+  }
+</script>
+
+<script>
+  /** Высота коробки в долях ширины */
+  const H = 0.1967;
+  /** Зазор между коробками в высотах коробки: в начале скролла и перед падением */
+  const GAP_START = 1.35;
+  const GAP_END = 0.5;
+  /** На какой доле остановки сцены коробки падают. Остаток — пауза: стопка собрана, сцена ещё стоит */
+  const DROP_AT = 0.55;
+  /** Синус наклона камеры: во сколько раз подъём коробки короче на экране */
+  const RISE = 0.8592;
+  /** Углы коробок снизу вверх: в начале скролла и в собранной стопке */
+  const TURN_START = [-16, 15, -27];
+  const TURN_END = [0, 4, -3];
+  /** Падение: ускорение (зазоров в секунду за секунду), отскок, задержка между коробками */
+  const GRAVITY = 46;
+  const BOUNCE = 0.3;
+  const STAGGER = 0.07;
+
+  const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  /** Коробки сближаются всё быстрее: основная часть движения приходится на то время, когда стопка уже на экране */
+  const ease = (t: number) => t ** 1.8;
+
+  function setup(root: HTMLElement) {
+    const stage = root.querySelector<HTMLElement>('.box-stack__stage')!;
+    const boxes = [...root.querySelectorAll<HTMLElement>('[data-box]')];
+    const n = boxes.length;
+    let target = 0; // прогресс скролла 0…1
+    let dropAt = 1; // прогресс, на котором коробки падают
+    let p = -1; // сглаженный прогресс
+    let released = false; // коробки отпущены и падают
+    let releasedAt = 0;
+    const lift = boxes.map(() => 1); // доля зазора под коробкой: 1 — висит, 0 — лежит
+    const speed = boxes.map(() => 0);
+    let frame = 0;
+    let last = 0;
+    let visible = false;
+
+    const measure = () => {
+      const rect = root.getBoundingClientRect();
+      const vh = innerHeight;
+      const height = stage.offsetHeight;
+      const stick = parseFloat(getComputedStyle(stage).top) || 0; // где сцена останавливается на экране
+      const top = rect.top + scrollY; // положение блока на странице
+      const maxScroll = document.documentElement.scrollHeight - vh;
+      const run = rect.height - height; // запас скролла, на который сцена останавливается
+      // Старт: сцена показалась снизу или уже видна при открытии страницы.
+      // Финиш: запас скролла кончился, сцена поехала дальше
+      const from = Math.min(top, vh * 0.9);
+      const to = Math.max(stick - run, top - maxScroll);
+      if (from <= to) {
+        target = dropAt = 1;
+        return;
+      }
+      target = clamp((from - rect.top) / (from - to));
+      dropAt = clamp((from - (stick - run * DROP_AT)) / (from - to), 0.2, 0.98);
+    };
+
+    const tick = (now: number) => {
+      frame = 0;
+      const dt = Math.min(0.05, last ? (now - last) / 1000 : 0.016);
+      last = now;
+
+      // Скролл колёсиком идёт рывками, поэтому прогресс догоняет цель плавно
+      p = p < 0 ? target : p + (target - p) * (1 - Math.exp(-dt / 0.09));
+      if (Math.abs(target - p) < 0.0005) p = target;
+
+      if (!released && p >= dropAt) {
+        released = true;
+        releasedAt = now;
+      } else if (released && p < dropAt - 0.05) {
+        released = false;
+      }
+
+      let moving = p !== target;
+      for (let i = 1; i < n; i++) {
+        if (released) {
+          if (now - releasedAt < (i - 1) * STAGGER * 1000) {
+            moving = true;
+            continue;
+          }
+          if (lift[i] > 0 || speed[i] !== 0) {
+            speed[i] -= GRAVITY * dt;
+            lift[i] += speed[i] * dt;
+            if (lift[i] <= 0) {
+              lift[i] = 0;
+              speed[i] = speed[i] < -3 ? -speed[i] * BOUNCE : 0;
+            }
+            moving = true;
+          }
+        } else if (lift[i] !== 1 || speed[i] !== 0) {
+          // Пружина без колебаний поднимает коробку обратно
+          const w = 13;
+          speed[i] += (-w * w * (lift[i] - 1) - 2 * w * speed[i]) * dt;
+          lift[i] += speed[i] * dt;
+          if (Math.abs(lift[i] - 1) < 0.002 && Math.abs(speed[i]) < 0.02) {
+            lift[i] = 1;
+            speed[i] = 0;
+          }
+          moving = true;
+        }
+      }
+
+      const e = ease(clamp(p / dropAt));
+      const gap = (GAP_END + (GAP_START - GAP_END) * (1 - e)) * H;
+      const turn = boxes.map((_, i) => TURN_END[i] + (TURN_START[i] - TURN_END[i]) * (1 - e));
+      let z = 0;
+      boxes.forEach((box, i) => {
+        if (i > 0) z += H + gap * lift[i];
+        box.style.setProperty('--rz', `${turn[i].toFixed(2)}deg`);
+        box.style.setProperty('--z', z.toFixed(4));
+        if (i < n - 1) {
+          // Тень от коробки сверху: чем ближе коробка, тем тень плотнее
+          box.style.setProperty('--shade-turn', `${(turn[i + 1] - turn[i]).toFixed(2)}deg`);
+          box.style.setProperty('--shade-gap', ((gap * lift[i + 1]) / H).toFixed(3));
+        }
+      });
+      // Пока зазоры большие, стопка стоит ниже: и разобранная, и собранная она остаётся по центру сцены
+      root.style.setProperty('--shift', ((gap - GAP_END * H) * RISE).toFixed(4));
+      root.classList.remove('is-pending');
+
+      if (moving && visible) request();
+      else last = 0;
+    };
+
+    const request = () => {
+      if (!frame) frame = requestAnimationFrame(tick);
+    };
+    const update = () => {
+      measure();
+      request();
+    };
+
+    new IntersectionObserver(
+      ([entry]) => {
+        visible = entry.isIntersecting;
+        if (visible) update();
+      },
+      { rootMargin: '25% 0px' },
+    ).observe(root);
+    addEventListener('scroll', () => visible && update(), { passive: true });
+    addEventListener('resize', update);
+    update();
+  }
+
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll<HTMLElement>('[data-box-stack]').forEach(setup);
+  }
+</script>
+
+<style>
+  .box-stack {
+    /* Размеры коробки: ширина, глубина, высота. Стопка занимает на экране 80% ширины окна:
+       повёрнутая на 45° коробка шириной w и глубиной d видна как (w + d) × cos 45° = 1,4263 w */
+    --w: calc(80vw / 1.4263);
+    --d: calc(var(--w) * 1.017);
+    --h: calc(var(--w) * 0.1967);
+    /* Камера как на картинках кейса */
+    --camera: rotateX(59.23deg);
+    /* Текстуры: на узком экране хватает половинных */
+    --lid: var(--lid-s);
+    --side: var(--side-s);
+    --front: var(--front-s);
+    --cut: var(--cut-s);
+
+    @media (width >= 700px) {
+      --lid: var(--lid-l);
+      --side: var(--side-l);
+      --front: var(--front-l);
+      --cut: var(--cut-l);
+    }
+  }
+
+  /* Сцена без фона, коробки стоят прямо на странице. Высота: собранная стопка 1,24 w плюс поля.
+     Пока прокручивается запас скролла, сцена стоит на экране: по центру, а если она ниже экрана
+     (телефон) — под шапкой, чтобы над ней не росла пустота */
+  .box-stack__stage {
+    --stage: calc(var(--w) * 1.32);
+    position: sticky;
+    top: min((100svh - var(--stage)) / 2, 5rem);
+    height: var(--stage);
+  }
+
+  /* С анимацией сцена выше: в неё должна поместиться разобранная стопка, 1,69 w */
+  .box-stack.is-live .box-stack__stage {
+    --stage: calc(var(--w) * 1.77);
+  }
+
+  /* Без скриптов и при «уменьшить движение» запаса нет: стопка собрана, держать сцену незачем */
+  .box-stack__run {
+    display: none;
+    height: min(50svh, var(--w) * 1.06);
+  }
+
+  .box-stack.is-live .box-stack__run {
+    display: block;
+  }
+
+  .box-stack.is-pending .box-stack__box {
+    visibility: hidden;
+  }
+
+  /* Точка, вокруг которой коробка поворачивается: центр её дна. Собранная стопка стоит по центру сцены */
+  .box-stack__box {
+    position: absolute;
+    top: calc(50% + var(--w) * (0.2535 + var(--shift, 0)));
+    left: 50%;
+    --turn: rotateZ(calc(45deg + var(--rz, 0deg)));
+    --lift: calc(var(--w) * var(--z, 0));
+  }
+
+  .box-stack__box > * {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: 0 0;
+    backface-visibility: hidden;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+  }
+
+  /* Крышка: квадрат со срезанными передними углами */
+  .lid {
+    /* Повёрнутая тень шире крышки. Без обрезки она расширяет страницу вбок, хотя её и не видно */
+    overflow: hidden;
+    width: var(--w);
+    height: var(--d);
+    background-image: var(--lid);
+    clip-path: polygon(0 0, 86.12% 0, 100% 9.75%, 100% 90.25%, 86.12% 100%, 0 100%);
+    transform: var(--camera) var(--turn)
+      translate3d(calc(var(--w) * -0.5), calc(var(--d) * -0.5), calc(var(--lift) + var(--h)));
+  }
+
+  /* Стенки висят от верхнего ребра вниз. --x, --y — начало ребра от центра коробки, --a — его направление */
+  .wall {
+    width: calc(var(--w) * var(--len));
+    height: var(--h);
+    transform: var(--camera) var(--turn)
+      translate3d(calc(var(--w) * var(--x)), calc(var(--w) * var(--y)), calc(var(--lift) + var(--h))) rotateZ(var(--a))
+      rotateX(-90deg);
+  }
+
+  .wall--side {
+    --x: -0.5;
+    --y: 0.5085;
+    --a: 0deg;
+    --len: 0.7298;
+    background-image: var(--side);
+  }
+
+  .wall--cut {
+    --x: 0.2298;
+    --y: 0.5085;
+    --a: -20.16deg;
+    --len: 0.2878;
+    background-image: var(--cut);
+  }
+
+  .wall--front {
+    --x: 0.5;
+    --y: 0.4093;
+    --a: -90deg;
+    --len: 0.8187;
+    background-image: var(--front);
+  }
+
+  /* Дальний срез — зеркало ближнего */
+  .wall--cut-far {
+    --x: 0.5;
+    --y: -0.4093;
+    --a: -159.84deg;
+    --len: 0.2878;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--cut) 0 0 / 100% 100% no-repeat;
+      transform: scaleX(-1);
+    }
+  }
+
+  /* Задние стенки на картинках кейса не видны. Они нужны, только если коробку сильно повернуть */
+  .wall--back {
+    --x: 0.2298;
+    --y: -0.5085;
+    --a: 180deg;
+    --len: 0.7298;
+    background-image: var(--side);
+  }
+
+  .wall--left {
+    --x: -0.5;
+    --y: -0.5085;
+    --a: 90deg;
+    --len: 1.017;
+    background: linear-gradient(90deg, #e26f1e, #cab799 30%, #cab799 70%, #e26f1e);
+  }
+
+  /* Тень от коробки сверху лежит на крышке и повторяет её поворот. Размытие постоянное:
+     на каждом кадре меняются только поворот и плотность, это не требует перерисовки */
+  .shade {
+    position: absolute;
+    inset: 0;
+    background: #1c1914;
+    opacity: calc(0.34 - var(--shade-gap, 0) * 0.14);
+    filter: blur(calc(var(--w) * 0.022));
+    transform: rotate(var(--shade-turn, 0deg));
+    will-change: transform, opacity;
+  }
+</style>

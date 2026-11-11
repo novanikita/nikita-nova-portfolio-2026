@@ -1,0 +1,99 @@
+---
+/**
+ * Сгенерированная обложка: полосы градиента по сиду (см. src/lib/generated-cover.ts).
+ * В покое это обычный CSS-градиент, он нарисован при сборке и виден без скриптов.
+ * При наведении на карточку скрипт двигает точки градиента, после ухода курсора возвращает их на место.
+ * Заполняет родителя целиком, поэтому родителю нужен position: relative.
+ */
+import { buildCover, coverStops, normalizeSeed } from '../lib/generated-cover';
+
+interface Props {
+  seed: string;
+}
+
+const seed = normalizeSeed(Astro.props.seed);
+---
+
+<div class="generated-cover" data-cover-seed={seed} style={`--stops: ${coverStops(buildCover(seed))}`}></div>
+
+<script>
+  import { buildCover, coverStops, type Cover } from '../lib/generated-cover';
+
+  function setup(el: HTMLElement) {
+    // Обложка оживает, когда курсор на всей карточке, а не только на самой обложке
+    const target = el.closest<HTMLElement>('a, button, .project-card') ?? el;
+    let seed: string | undefined;
+    let settings: string | undefined;
+    let cover: Cover;
+    let hovered = false;
+    let focused = false;
+    let amount = 0; // сила движения: 0 покой, 1 полная
+    let time = 0;
+    let last = 0;
+    let frame = 0;
+
+    const tick = (now: number) => {
+      frame = 0;
+      const dt = Math.min(0.05, last ? (now - last) / 1000 : 0.016);
+      last = now;
+      // Сид и настройки могли сменить на лету: так работает страница генератора.
+      // Без data-cover-settings обложка строится по настройкам сайта
+      if (el.dataset.coverSeed !== seed || el.dataset.coverSettings !== settings) {
+        seed = el.dataset.coverSeed ?? '';
+        settings = el.dataset.coverSettings;
+        cover = buildCover(seed, settings ? JSON.parse(settings) : undefined);
+      }
+      const active = hovered || focused;
+      const { rise, fall } = cover.motion;
+      time += dt;
+      amount += ((active ? 1 : 0) - amount) * (1 - Math.exp(-dt / Math.max(0.01, active ? rise : fall)));
+      if (!active && amount < 0.004) {
+        // Вернулись: ставим исходную обложку точно и останавливаемся
+        amount = 0;
+        time = 0;
+        last = 0;
+        el.style.setProperty('--stops', coverStops(cover));
+        return;
+      }
+      el.style.setProperty('--stops', coverStops(cover, time, amount));
+      frame = requestAnimationFrame(tick);
+    };
+
+    const wake = () => {
+      if (!frame) frame = requestAnimationFrame(tick);
+    };
+
+    // На тач-экранах наведения нет: касание сразу открывает статью
+    target.addEventListener('pointerenter', (e) => {
+      if (e.pointerType === 'touch') return;
+      hovered = true;
+      wake();
+    });
+    target.addEventListener('pointerleave', () => (hovered = false));
+    target.addEventListener('focus', () => {
+      focused = target.matches(':focus-visible');
+      if (focused) wake();
+    });
+    target.addEventListener('blur', () => (focused = false));
+  }
+
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll<HTMLElement>('.generated-cover').forEach(setup);
+  }
+</script>
+
+<style>
+  .generated-cover {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, var(--stops));
+  }
+
+  /* Переходы между цветами считаются в OKLab: они чище и ярче, без грязно-серой середины.
+     Старые браузеры смешивают цвета обычным способом */
+  @supports (background: linear-gradient(in oklab, #000, #fff)) {
+    .generated-cover {
+      background: linear-gradient(in oklab to bottom, var(--stops));
+    }
+  }
+</style>

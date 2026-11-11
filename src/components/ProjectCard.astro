@@ -10,11 +10,12 @@ interface Props {
 
 const { project } = Astro.props;
 const { entry } = project;
+const { card } = entry.data;
 const tone = await coverTone(entry.data.cover);
 ---
 
 <a
-  class:list={['ids__sequence-item project-card', { 'is-dark': tone.dark }]}
+  class:list={['project-card', { M: card === 'M', 'is-dark': tone.dark }]}
   href={project.url}
   data-category={entry.data.category}
   style={`--tone: ${tone.color}`}
@@ -24,7 +25,7 @@ const tone = await coverTone(entry.data.cover);
       src={entry.data.cover}
       alt={project.coverAlt}
       widths={COVER_WIDTHS}
-      sizes={coverSizes(entry.data.cover)}
+      sizes={coverSizes(entry.data.cover, card)}
       format="avif"
       loading="lazy"
     />

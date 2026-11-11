@@ -60,10 +60,13 @@ function localizeArticle(entry: Article, lang: Lang, tr?: Translation): Localize
   };
 }
 
+/** Черновики видны только в деве, в сборку они не попадают */
+const published = (p: Project) => import.meta.env.DEV || !p.data.draft;
+
 /** Все видимые проекты: от новых к старым, при одинаковой дате по order */
 export async function getProjects(lang: Lang): Promise<LocalizedProject[]> {
   const [projects, tr] = await Promise.all([
-    getCollection('projects', (p) => !p.data.hidden),
+    getCollection('projects', (p) => !p.data.hidden && published(p)),
     translationsMap(),
   ]);
   return projects
@@ -132,9 +135,9 @@ export function formatDate(date: Date, lang: Lang): string {
   }).format(date);
 }
 
-/** Пути для getStaticPaths страниц кейсов (включая скрытые — они открываются по ссылке) */
+/** Пути для getStaticPaths страниц кейсов (включая скрытые — они открываются по ссылке, но без черновиков) */
 export async function projectPaths() {
-  const projects = await getCollection('projects');
+  const projects = await getCollection('projects', published);
   return projects.map((entry) => ({ params: { id: entry.id }, props: { entry } }));
 }
 

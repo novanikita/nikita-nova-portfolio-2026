@@ -19,7 +19,7 @@ const byFolder = (collection: string) =>
 const figureSize = z.enum(['big', 'half', 'third', 'fourth']);
 
 /**
- * Элемент галереи: картинка из папки кейса, видео из public/ или место для следующего
+ * Элемент галереи: картинка из папки кейса, видео из public/, живая сцена или место для следующего
  * блока текста из тела кейса (блоки разделены комментарием <!-- text -->)
  */
 const figure = ({ image }: SchemaContext) =>
@@ -36,6 +36,11 @@ const figure = ({ image }: SchemaContext) =>
       size: figureSize,
     }),
     z.object({ text: z.literal(true) }),
+    z.object({
+      /** Живая сцена вместо картинки: компонент из src/components/scenes/ */
+      scene: z.enum(['box-stack']),
+      size: figureSize,
+    }),
   ]);
 
 const projects = defineCollection({
@@ -52,10 +57,14 @@ const projects = defineCollection({
       order: z.number().default(0),
       cover: ctx.image(),
       coverAlt: z.string().optional(),
+      /** Размер карточки в сетке: S занимает один блок из четырёх, M два */
+      card: z.enum(['S', 'M']).default('S'),
       /** Показывать на главной */
       featured: z.boolean().default(false),
       /** Убрать с сайта: страница открывается по ссылке, но карточки нет */
       hidden: z.boolean().default(false),
+      /** Черновик: виден только в деве. В сборку не попадают ни карточка, ни страница */
+      draft: z.boolean().default(false),
       gallery: z.array(figure(ctx)).default([]),
       /** Для поисковиков и превью ссылок; по умолчанию начало текста кейса */
       description: z.string().optional(),
@@ -70,8 +79,10 @@ const articles = defineCollection({
       /** Название в списке, если отличается от заголовка */
       listTitle: z.string().optional(),
       date: z.coerce.date(),
-      /** Обложка карточки в общей сетке. Без неё на карточке название на сером фоне */
+      /** Своя обложка карточки в общей сетке. Без неё обложка генерируется, см. /cover-generator */
       cover: image().optional(),
+      /** Сид сгенерированной обложки, если вариант по названию статьи не понравился */
+      coverSeed: z.string().optional(),
       coverAlt: z.string().optional(),
       hidden: z.boolean().default(false),
       description: z.string().optional(),

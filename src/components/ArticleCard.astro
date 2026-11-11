@@ -3,27 +3,32 @@ import { Image } from 'astro:assets';
 import type { LocalizedArticle } from '../lib/content';
 import { coverTone } from '../lib/cover-tone';
 import { COVER_WIDTHS, coverSizes } from '../lib/cover-sizes';
+import { buildCover } from '../lib/generated-cover';
+import GeneratedCover from './GeneratedCover.astro';
 
 interface Props {
   article: LocalizedArticle;
 }
 
 const { article } = Astro.props;
-const { cover } = article.entry.data;
-const tone = cover ? await coverTone(cover) : undefined;
+const { cover, coverSeed, title } = article.entry.data;
+// Без своей картинки обложка генерируется. Сид — русское название статьи (одна обложка на оба языка)
+// или поле coverSeed, если вариант по названию не понравился
+const seed = coverSeed ?? title;
+const tone = cover ? await coverTone(cover) : { color: buildCover(seed).tone, dark: true };
 ---
 
 <!-- Статья в общей сетке: выглядит как карточка проекта, фильтр «статьи».
-     Без обложки — серая карточка с подписью -->
+     Без своей обложки — сгенерированная, см. /cover-generator -->
 <a
-  class:list={['ids__sequence-item project-card', { 'is-dark': tone?.dark }]}
+  class:list={['project-card', { 'is-dark': tone.dark }]}
   href={article.url}
   data-category="articles"
-  style={tone && `--tone: ${tone.color}`}
+  style={`--tone: ${tone.color}`}
 >
   <div class="project-card__cover">
     {
-      cover && (
+      cover ? (
         <Image
           src={cover}
           alt={article.coverAlt}
@@ -32,6 +37,8 @@ const tone = cover ? await coverTone(cover) : undefined;
           format="avif"
           loading="lazy"
         />
+      ) : (
+        <GeneratedCover seed={seed} />
       )
     }
   </div>
